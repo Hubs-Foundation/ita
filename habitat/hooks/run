@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+exec 2>&1
+
+set -e
+
+export HOST="{{ cfg.general.host }}"
+export PORT="{{ cfg.general.port }}"
+export DEBUG="{{ cfg.general.debug }}"
+export REQ_LOG_FORMAT="{{ cfg.general.req_log_format }}"
+
+export AWS_REGION="{{ cfg.aws.region }}"
+export AWS_STACK_ID="{{ cfg.aws.shard_id }}"
+
+export HAB_SERVICE_GROUP="{{ cfg.hab.service_group }}"
+export HAB_HTTP_HOST="{{ cfg.hab.http_host }}"
+export HAB_HTTP_PORT="{{ cfg.hab.http_port }}"
+export HAB_SUP_HOST="{{ cfg.hab.sup_host }}"
+export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
+
+cd {{pkg.svc_path}}
+export SCHEMAS_DIR={{ pkg.svc_static_path }}/schemas
+exec node {{pkg.svc_static_path}}/bin/server

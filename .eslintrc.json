@@ -1,0 +1,6 @@
+{
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
+  },
+  "extends": ["eslint:recommended", "plugin:node/recommended"]
+}

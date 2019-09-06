@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+// Accepts a Habitat default.toml file from stdin and writes a TOML schema file to stdout
+// that has the same default values and their types expressed as an admin config schema.
+
+const process = require("process");
+const toml = require('@iarna/toml');
+
+function escapeQuotes(str) {
+  return str.replace(/"/g, '\\"');
+}
+
+// Returns the Hubs config type of a default value in the default.toml file.
+function getType(val) {
+  if (val instanceof Date) {
+    return "datetime";
+  } else if (typeof val === "number" || typeof val === "boolean") {
+    return typeof val;
+  } else {
+    return "string";
+  }
+}
+
+// Returns the TOML formatting of a value with its associated Hubs config type.
+function formatVal(val, t) {
+  switch (t) {
+  case 'datetime': return val.toISOString();
+  case 'string': return `"${escapeQuotes(val)}"`;
+  default: return val.toString();
+  }
+}
+
+function write(defaultsTree, prefix = null) {
+  for (const k in defaultsTree) {
+    const path = prefix != null ? `${prefix}.${k}` : k;
+    const val = defaultsTree[k];
+    if (Array.isArray(val)) {
+      // toml arrays have homogenous type as per spec
+      const elType = val.length > 0 ? getType(val[0]) : "string";
+      const formatted = val.map(el => formatVal(el, elType)).join(", ");
+      console.log(`${path} = { "type" = "list", "of" = "${elType}", "default" = [${formatted}] }`);
+    } else if (typeof val === "object") {
+      write(val, path);
+    } else {
+      const t = getType(val);
+      console.log(`${path} = { "type" = "${t}", "default" = ${formatVal(val, t)} }`);
+    }
+  }
+}
+
+async function run() {
+  write(await toml.parse.stream(process.stdin));
+}
+
+run().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

@@ -1,0 +1,22 @@
+ret.pool = { "type" = "string", "default" = "default" }
+phx.port = { "type" = "number", "default" = 4000 }
+phx.ip = { "type" = "string", "default" = "127.0.0.1" }
+phx.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+phx.url_host_prefix = { "type" = "string", "default" = "" }
+phx.static_url_host_prefix = { "type" = "string", "default" = "" }
+phx.admin_access_key = { "type" = "string", "default" = "" }
+guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+erlang.node_cookie = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+habitat.ip = { "type" = "string", "default" = "127.0.0.1" }
+habitat.http_port = { "type" = "number", "default" = 9631 }
+oauth_google.client_id = { "type" = "string", "default" = "foo" }
+oauth_google.client_secret = { "type" = "string", "default" = "bar" }
+db.username = { "type" = "string", "default" = "admin" }
+db.password = { "type" = "string", "default" = "admin" }
+db.hostname = { "type" = "string", "default" = "localhost" }
+db.database = { "type" = "string", "default" = "ret_dev" }
+db.template = { "type" = "string", "default" = "template0" }
+db.pool_size = { "type" = "number", "default" = 16 }
+security.content_security_policy = { "type" = "string", "default" = "default-src 'self'" }
+security.cors_origins = { "type" = "string", "default" = "[\"*\"]" }
+pages.insecure_ssl = { "type" = "string", "default" = "false" }

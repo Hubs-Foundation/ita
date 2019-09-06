@@ -1,0 +1,16 @@
+[general]
+host = "localhost"
+port = 3000
+debug = "ita*,configtool*"
+req_log_format = ":date[iso] :method :url :status"
+
+[aws]
+region = "us-west-1"
+stack_id = ""
+
+[hab]
+service_group = "default"
+http_host = "localhost"
+http_port = 9631
+sup_host = "localhost"
+sup_port = 9632

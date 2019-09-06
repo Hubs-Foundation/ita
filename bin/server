@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+const dotenv = require("dotenv");
+dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.defaults" });
+
+const app = require('../src/app');
+const debug = require('debug')('server');
+const server = app.listen(process.env.PORT, process.env.HOST);
+server.on('listening', () => {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+});
