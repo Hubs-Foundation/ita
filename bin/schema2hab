@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+// Accepts a TOML schema file from stdin and generates a Habitat default.toml file to stdout
+// containing all the values from the schema which have defaults and their defaults.
+
+const process = require("process");
+const toml = require('@iarna/toml');
+const { getDefaults } = require('../src/schemas.js');
+
+function write(schema) {
+  console.log(toml.stringify(getDefaults(schema)));
+}
+
+async function readToEnd(stream) {
+  let buffer = Buffer.alloc(0);
+  for await (const chunk of stream) {
+    buffer = Buffer.concat([buffer, chunk]);
+  }
+  return buffer.toString('utf8');
+}
+
+async function run() {
+  write(toml.parse(await readToEnd(process.stdin)));
+}
+
+run().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
