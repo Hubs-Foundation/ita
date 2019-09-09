@@ -33,9 +33,8 @@ function create() {
   const schemas = loadSchemas(path.join(__dirname, "..", "schemas"));
   const router = express.Router();
 
-  // returns list of services we interact with == services we have defined config schema for
-  router.get('/services', forwardExceptions(async (req, res) => {
-    res.json({ services: Object.keys(schemas) });
+  router.get('/schemas', forwardExceptions(async (req, res) => {
+    res.json(schemas);
   }));
 
   // initializes parameter store with data from schema + stack outputs
