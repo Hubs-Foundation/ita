@@ -7,6 +7,7 @@ req_log_format = ":date[iso] :method :url :status"
 [aws]
 region = "us-west-1"
 stack_id = ""
+ps_reqs_per_sec = 3
 
 [hab]
 service_group = "default"

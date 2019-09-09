@@ -13,24 +13,30 @@ function forwardExceptions(routeFn) {
 
 function create() {
 
+  // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
   const credentialProvider = new AWS.CredentialProviderChain([
     () => new AWS.EnvironmentCredentials('AWS'),
     () => new AWS.SharedIniFileCredentials()
   ]);
+
   const cloudFormation = new CloudFormation({
     credentialProvider,
     region: process.env.AWS_REGION,
     // logger: { write: msg => debug(msg.trimEnd()) }
   });
+
   const parameterStore = new ParameterStore({
     credentialProvider,
     region: process.env.AWS_REGION,
     retryDelayOptions: { base: 5000 }, // very conservative retry rate because of free tier rate limiting
     // logger: { write: msg => debug(msg.trimEnd()) }
-  });
+  }, process.env.AWS_PS_REQS_PER_SEC);
+
   const habitat = new Habitat(process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
+
   const schemas = loadSchemas(path.join(__dirname, "..", "schemas"));
+
   const router = express.Router();
 
   router.get('/schemas', forwardExceptions(async (req, res) => {
