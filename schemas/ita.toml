@@ -4,7 +4,6 @@ general.debug = { "type" = "string", "default" = "ita*,configtool*" }
 general.req_log_format = { "type" = "string", "default" = ":date[iso] :method :url :status" }
 general.schemas_dir = { "type" = "string", "default" = "schemas" }
 aws.region = { "type" = "string", "default" = "us-west-1" }
-aws.creds = { "type" = "string", "default" = "" }
 aws.stack_id = { "type" = "string", "default" = "" }
 hab.service_group = { "type" = "string", "default" = "default" }
 hab.http_host = { "type" = "string", "default" = "localhost" }
