@@ -12,6 +12,7 @@ export REQ_LOG_FORMAT="{{ cfg.general.req_log_format }}"
 export AWS_REGION="{{ cfg.aws.region }}"
 export AWS_STACK_ID="{{ cfg.aws.shard_id }}"
 export AWS_PS_REQS_PER_SEC="{{ cfg.aws.ps_reqs_per_sec }}"
+export AWS_PS_RETRY_DELAY_MS="{{ cfg.aws.ps_retry_delay_ms }}"
 
 export HAB_SERVICE_GROUP="{{ cfg.hab.service_group }}"
 export HAB_HTTP_HOST="{{ cfg.hab.http_host }}"

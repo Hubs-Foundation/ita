@@ -32,7 +32,7 @@ function create() {
   const parameterStore = new ParameterStore({
     credentialProvider,
     region: process.env.AWS_REGION,
-    retryDelayOptions: { base: 5000 }, // very conservative retry rate because of free tier rate limiting
+    retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
     // logger: { write: msg => debug(msg.trimEnd()) }
   }, process.env.AWS_PS_REQS_PER_SEC);
 

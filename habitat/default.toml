@@ -8,6 +8,7 @@ req_log_format = ":date[iso] :method :url :status"
 region = "us-west-1"
 stack_id = ""
 ps_reqs_per_sec = 3
+ps_retry_delay_ms = 5000
 
 [hab]
 service_group = "default"
