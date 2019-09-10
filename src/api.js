@@ -66,6 +66,36 @@ function create() {
     res.json(schemas);
   }));
 
+  // reads the latest configs from parameter store
+  router.get('/configs/:service/ps', forwardExceptions(async (req, res) => {
+    if (!(req.params.service in schemas)) {
+      return res.status(400).json({ error: "Invalid service name." });
+    }
+    const configs = await parameterStore.read(req.params.service);
+    return res.json(configs);
+  }));
+
+  // reads the latest configs from the Habitat ring
+  router.get('/configs/:service/hab', forwardExceptions(async (req, res) => {
+    if (!(req.params.service in schemas)) {
+      return res.status(400).json({ error: "Invalid service name." });
+    }
+    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP);
+    return res.json(configs);
+  }));
+
+  // updates parameter store with new client-supplied values and flushes them to ring
+  router.patch('/configs/:service', forwardExceptions(async (req, res) => {
+    if (!(req.params.service in schemas)) {
+      return res.status(400).json({ error: "Invalid service name." });
+    }
+    debug(`Updating ${req.params.service} with new values.`);
+    // todo: validate against schema?
+    await parameterStore.write(req.params.service, req.body);
+    await flushDiffs(req.params.service, Date.now());
+    return res.json({ msg: `Update succeeded.` });
+  }));
+
   // initializes parameter store with data from schema + stack outputs
   router.post('/initialize/:service?', forwardExceptions(async (req, res) => {
     if (req.params.service && !(req.params.service in schemas)) {
@@ -99,19 +129,6 @@ function create() {
     }
     return res.json({ msg: `Flush done. Services up-to-date: ${services.join(", ")}` });
   }));
-
-  // updates parameter store with new client-supplied values and flushes them to ring
-  router.post('/update/:service', forwardExceptions(async (req, res) => {
-    if (!(req.params.service in schemas)) {
-      return res.status(400).json({ error: "Invalid service name." });
-    }
-    debug(`Updating ${req.params.service} with new values.`);
-    // todo: validate against schema?
-    await parameterStore.write(req.params.service, req.body);
-    await flushDiffs(req.params.service, Date.now());
-    return res.json({ msg: `Update succeeded.` });
-  }));
-
 
   return router;
 }
