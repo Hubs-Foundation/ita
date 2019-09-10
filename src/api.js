@@ -105,7 +105,7 @@ function create() {
   }));
 
   // initializes parameter store with data from schema + stack outputs
-  router.post('/initialize/:service?', forwardExceptions(async (req, res) => {
+  router.post('/configs/initialize/:service?', forwardExceptions(async (req, res) => {
     if (req.params.service && !(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
@@ -126,7 +126,7 @@ function create() {
   }));
 
   // flushes data from parameter store to habitat ring
-  router.post('/flush/:service?', forwardExceptions(async (req, res) => {
+  router.post('/configs/flush/:service?', forwardExceptions(async (req, res) => {
     if (req.params.service && !(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
