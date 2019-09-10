@@ -62,8 +62,16 @@ function create() {
     }
   }
 
-  router.get('/schemas', forwardExceptions(async (req, res) => {
-    res.json(schemas);
+  // emits schemas for one or all services
+  router.get('/schemas/:service?', forwardExceptions(async (req, res) => {
+    if (req.params.service) {
+      if (!(req.params.service in schemas)) {
+        return res.status(400).json({ error: "Invalid service name." });
+      }
+      return res.json(schemas[req.params.service]);
+    } else {
+      return res.json(schemas);
+    }
   }));
 
   // reads the latest configs from parameter store
