@@ -76,9 +76,21 @@ class CloudFormation {
   }
 
   async _performOutputXform(value, xform, args) {
-    if (xform === "read-aws-secret") {
-      const secret = await this.getSecretValue({ SecretId: value });
-      return JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
+    if (xform === "read-aws-secret" || xform === "inject-aws-secret") {
+      let secretId = value;
+
+      if (xform === "inject-aws-secret") {
+        secretId = value.match(/{(.*)}/)[1];
+      }
+
+      const secret = await this.getSecretValue({ SecretId: secretId });
+      const secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
+
+      if (xform === "inject-aws-secret") {
+        return value.replace(`{${secretId}}`, secretValue);
+      } else {
+        return secretValue;
+      }
     } else if (xform === "read-s3-file" || xform === "read-s3-file-as-json") {
       const [_, bucket, key] = value.match(/^s3:\/\/([^/]+)\/(.*)$/);
       const obj = await this.getS3Object({ Bucket: bucket, Key: key });

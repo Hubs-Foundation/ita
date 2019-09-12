@@ -54,7 +54,7 @@ function create() {
   async function flushDiffs(service, now) {
     debug(`Flushing service ${service}...`);
     const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service);
-    const paramaterStoreConfigs = await parameterStore.read(service);
+    const paramaterStoreConfigs = await parameterStore.read(service) || {};
     const newConfigs = Object.assign(paramaterStoreConfigs, stackConfigs);
     const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
     const differences = diff(oldConfigs, newConfigs);
