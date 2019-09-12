@@ -16,25 +16,33 @@ function getVersion(ts) {
 }
 
 function create() {
-
   // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
   const credentialProvider = new AWS.CredentialProviderChain([
     () => new AWS.EnvironmentCredentials('AWS'),
-    () => new AWS.SharedIniFileCredentials()
+    () => new AWS.SharedIniFileCredentials(),
+    () => new AWS.EC2MetadataCredentials()
   ]);
 
-  const cloudFormation = new CloudFormation({
+  const sharedOptions = {
     credentialProvider,
     region: process.env.AWS_REGION,
     // logger: { write: msg => debug(msg.trimEnd()) }
-  });
+  };
 
-  const parameterStore = new ParameterStore({
-    credentialProvider,
-    region: process.env.AWS_REGION,
-    retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
-    // logger: { write: msg => debug(msg.trimEnd()) }
-  }, process.env.AWS_PS_REQS_PER_SEC);
+  const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions, sharedOptions);
+
+  let parameterStore;
+
+  cloudFormation.getName(process.env.AWS_STACK_ID).then(stackName => {
+    const paramsPath = `ita/${stackName}`;
+
+    parameterStore = new ParameterStore({
+      credentialProvider,
+      region: process.env.AWS_REGION,
+      retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
+      // logger: { write: msg => debug(msg.trimEnd()) }
+    }, paramsPath, process.env.AWS_PS_REQS_PER_SEC);
+  });
 
   const habitat = new Habitat(process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
@@ -45,8 +53,10 @@ function create() {
 
   async function flushDiffs(service, now) {
     debug(`Flushing service ${service}...`);
-    const newConfigs = await parameterStore.read(service);
-    const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP);
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service);
+    const paramaterStoreConfigs = await parameterStore.read(service);
+    const newConfigs = Object.assign(paramaterStoreConfigs, stackConfigs);
+    const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
     const differences = diff(oldConfigs, newConfigs);
     if (differences != null) {
       const diffPaths = new Set();
@@ -54,7 +64,7 @@ function create() {
         diffPaths.add(d.path.join("/"));
       }
       debug(`Updating Habitat configs: ${Array.prototype.join(diffPaths, ', ')}`);
-      await habitat.write(service, process.env.HAB_SERVICE_GROUP, newConfigs, getVersion(now));
+      await habitat.write(service, process.env.HAB_SERVICE_GROUP_SUFFIX, newConfigs, getVersion(now));
       return diffPaths;
     } else {
       debug(`All ${service} configs already up-to-date.`);
@@ -88,12 +98,15 @@ function create() {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP);
+    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP_SUFFIX);
     return res.json(configs);
   }));
 
   // updates parameter store with new client-supplied values and flushes them to ring
   router.patch('/configs/:service', forwardExceptions(async (req, res) => {
+    if (!parameterStore) {
+      return res.status(503).json({ error: "Service initializing." });
+    }
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
@@ -106,6 +119,9 @@ function create() {
 
   // initializes parameter store with data from schema + stack outputs
   router.post('/configs/initialize/:service?', forwardExceptions(async (req, res) => {
+    if (!parameterStore) {
+      return res.status(503).json({ error: "Service initializing." });
+    }
     if (req.params.service && !(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
@@ -120,13 +136,16 @@ function create() {
       const schema = schemas[srv];
       const defaults = getDefaults(schema, stackOutputs);
       await parameterStore.write(srv, defaults);
-      await habitat.write(srv, process.env.HAB_SERVICE_GROUP, defaults, getVersion(now));
+      await habitat.write(srv, process.env.HAB_SERVICE_GROUP_SUFFIX, defaults, getVersion(now));
     }
     return res.json({ msg: `Initialization done. Services up-to-date: ${services.join(", ")}` });
   }));
 
   // flushes data from parameter store to habitat ring
   router.post('/configs/flush/:service?', forwardExceptions(async (req, res) => {
+    if (!parameterStore) {
+      return res.status(503).json({ error: "Service initializing." });
+    }
     if (req.params.service && !(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
