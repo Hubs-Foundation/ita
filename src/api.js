@@ -29,7 +29,7 @@ function create() {
     // logger: { write: msg => debug(msg.trimEnd()) }
   };
 
-  const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions, sharedOptions);
+  const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
 
   let parameterStore;
 
