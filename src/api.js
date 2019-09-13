@@ -1,11 +1,12 @@
 const express = require('express');
 const debug = require('debug')('ita:api');
 const diff = require('deep-diff').diff;
+const merge = require('lodash.merge');
 const path = require('path');
 const AWS = require('aws-sdk');
 const { CloudFormation } = require("./cloud-formation");
 const { ParameterStore, Habitat } = require('hubs-configtool');
-const { loadSchemas, getDefaults } = require("./schemas");
+const { loadSchemas, getDefaults, getEmptyValue } = require("./schemas");
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
@@ -53,10 +54,29 @@ function create() {
 
   async function flushDiffs(service, now) {
     debug(`Flushing service ${service}...`);
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service);
-    const paramaterStoreConfigs = await parameterStore.read(service) || {};
-    const newConfigs = Object.assign(paramaterStoreConfigs, stackConfigs);
+    const schema = schemas[service];
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+    const parameterStoreConfigs = await parameterStore.read(service) || {};
+    const defaultConfigs = getDefaults(schema);
     const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
+
+    // Any old configs not present in new configs implies they are no longer have a value, blank them out so this is idempotent
+    const blankOldConfigs = {};
+
+    for (let section in oldConfigs) {
+      blankOldConfigs[section] = {};
+
+      for (let config in oldConfigs[section]) {
+        if (schema[section] && schema[section][config]) {
+          blankOldConfigs[section][config] = getEmptyValue(schema, section, config);
+        } else {
+          blankOldConfigs[section][config] = "";
+        }
+      }
+    }
+
+    // Parameter store overrides stack overrides defaults overrides blank old configs.
+    const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, parameterStoreConfigs);
     const differences = diff(oldConfigs, newConfigs);
     if (differences != null) {
       const diffPaths = new Set();
@@ -115,30 +135,6 @@ function create() {
     await parameterStore.write(req.params.service, req.body);
     await flushDiffs(req.params.service, Date.now());
     return res.json({ msg: `Update succeeded.` });
-  }));
-
-  // initializes parameter store with data from schema + stack outputs
-  router.post('/configs/initialize/:service?', forwardExceptions(async (req, res) => {
-    if (!parameterStore) {
-      return res.status(503).json({ error: "Service initializing." });
-    }
-    if (req.params.service && !(req.params.service in schemas)) {
-      return res.status(400).json({ error: "Invalid service name." });
-    }
-    if (!process.env.AWS_STACK_ID) {
-      return res.status(400).json({ error: "No stack ID configured; can't initialize from stack outputs." });
-    }
-    const stackOutputs = await cloudFormation.read(process.env.AWS_STACK_ID);
-    const services = req.params.service ? [req.params.service] : Object.keys(schemas);
-    const now = Date.now();
-    for (const srv of services) {
-      debug(`Initializing service ${srv}...`);
-      const schema = schemas[srv];
-      const defaults = getDefaults(schema, stackOutputs);
-      await parameterStore.write(srv, defaults);
-      await habitat.write(srv, process.env.HAB_SERVICE_GROUP_SUFFIX, defaults, getVersion(now));
-    }
-    return res.json({ msg: `Initialization done. Services up-to-date: ${services.join(", ")}` });
   }));
 
   // flushes data from parameter store to habitat ring

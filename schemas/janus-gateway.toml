@@ -43,6 +43,3 @@ transports.websockets.admin_ws_port = { "type" = "number", "default" = 7188 }
 transports.websockets.admin_wss = { "type" = "string", "default" = "no" }
 events.broadcast = { "type" = "string", "default" = "yes" }
 events.stats_period = { "type" = "number", "default" = 5 }
-
-# for testing initialization from stack outputs
-test.from_stack = { "type" = "string", "from" = "JanusAdminPort" }

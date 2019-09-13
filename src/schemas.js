@@ -5,7 +5,7 @@ const path = require("path");
 
 // A TOML object is considered to be a config descriptor if it at least has
 // a "type" key and has no keys which aren't valid descriptor metadata.
-const DESCRIPTOR_FIELDS = ["from", "default", "type", "of"];
+const DESCRIPTOR_FIELDS = ["default", "type", "of"];
 function isDescriptor(obj) {
   if (typeof obj !== "object") return false;
   if (!("type" in obj)) return false;
@@ -17,29 +17,47 @@ function isDescriptor(obj) {
   return true;
 }
 
-function getDefaultValue(descriptor, stackOutputs) {
-  if ("from" in descriptor && descriptor.from in stackOutputs) {
-    return stackOutputs[descriptor.from];
-  } else if ("default" in descriptor) {
+function getDefaultValue(descriptor) {
+  if ("default" in descriptor) {
     return descriptor.default;
   } else {
     return undefined;
   }
 }
 
-function getDefaults(schema, stackOutputs) {
+// Given the schema and the path to a config, returns a valid empty value for the type of the descriptor if one is present.
+function getEmptyValue(schema, section, config) {
+  if (!schema[section]) return "";
+
+  const descriptor = schema[section][config];
+  if (!descriptor) return "";
+  if (!("type" in descriptor)) return "";
+  if (descriptor.type === "number") return 0;
+  return "";
+}
+
+// Given the schema and the path to a config, coerces the value to the type of the descriptor if one is present.
+function coerceToType(schema, section, config, value) {
+  if (!schema[section]) return value;
+  const descriptor = schema[section][config];
+  if (!descriptor || !("type" in descriptor)) return value;
+  if (descriptor.type === "number" && value) return parseInt(value);
+  return value;
+}
+
+function getDefaults(schema) {
   const config = {};
   for (const k in schema) {
     const v = schema[k];
     if (typeof v === "object") {
       // it's either a descriptor, or a subtree of descriptors
       if (isDescriptor(v)) {
-        const defaultValue = getDefaultValue(v, stackOutputs);
+        const defaultValue = getDefaultValue(v);
         if (defaultValue !== undefined) {
           config[k] = defaultValue;
         }
       } else {
-        config[k] = getDefaults(v, stackOutputs);
+        config[k] = getDefaults(v);
       }
     } else {
       // schemas should only be a tree of descriptors!
@@ -65,4 +83,4 @@ function loadSchemas(dir) {
   return schemas;
 }
 
-module.exports = { loadSchemas, getDefaults };
+module.exports = { loadSchemas, getDefaults, getEmptyValue, coerceToType };

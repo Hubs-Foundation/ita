@@ -1,5 +1,6 @@
 const AWS = require("aws-sdk");
 const util = require("util");
+const { coerceToType } = require("./schemas");
 
 class CloudFormation {
   constructor(cfOptions, cmOptions, s3Options) {
@@ -16,7 +17,7 @@ class CloudFormation {
     return res.Stacks[0].StackName;
   }
 
-  async read(stack, service) {
+  async read(stack, service, schema) {
     const setters = [];
     const res = await this.describeStacks({ StackName: stack });
     if (res.Stacks.length === 0) {
@@ -54,17 +55,20 @@ class CloudFormation {
       const serviceTargets = targets.filter(t => t.service === service);
       for (let i = 0; i < serviceTargets.length; i++) {
         const t = serviceTargets[i];
-        const path = `${t.service}/${t.section}/${t.config}`;
         const value = output.OutputValue;
+
+        if (!data[t.section]) {
+          data[t.section] = {}
+        }
 
         setters.push(new Promise(resolve => {
           if (t.xform) {
             this._performOutputXform(value, t.xform, t.args).then(value => {
-              data[path] = value;
+              data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
               resolve();
             })
           } else {
-            data[path] = value;
+            data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
             resolve();
           }
         }));

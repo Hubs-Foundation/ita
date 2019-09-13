@@ -20,6 +20,9 @@ export HAB_HTTP_PORT="{{ cfg.hab.http_port }}"
 export HAB_SUP_HOST="{{ cfg.hab.sup_host }}"
 export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
 
+# Assumes we've granted UNIX read permissions to this file to the user running the service
+export HAB_CTL_SECRET=$(cat /hab/sup/default/CTL_SECRET)
+
 cd {{pkg.svc_path}}
 export SCHEMAS_DIR={{ pkg.svc_static_path }}/schemas
 exec node {{pkg.svc_static_path}}/bin/server
