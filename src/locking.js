@@ -1,25 +1,14 @@
-const { loadSchemas } = require("./schemas");
 const debug = require('debug')('ita:locking');
-const AWS = require('aws-sdk');
-const path = require('path');
-const { CloudFormation } = require("./cloud-formation");
 
 const { Client } = require('pg');
 
+const LOCK_ID = -874238742382195 // Arbitrary lock id used for ita locking
+const LOCK_TIMEOUT_MS = 30000;
+
 let pgConfig;
 
-function connectToDatabase() {
+async function connectToDatabase(schemas, cloudFormation) {
   if (!pgConfig) {
-    // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
-    const credentialProvider = new AWS.CredentialProviderChain([
-      () => new AWS.EnvironmentCredentials('AWS'),
-      () => new AWS.SharedIniFileCredentials(),
-      () => new AWS.EC2MetadataCredentials()
-    ]);
-
-    const schemas = loadSchemas(path.join(__dirname, "..", "schemas"));
-    const sharedOptions = { credentialProvider, region: process.env.AWS_REGION };
-    const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
     const itaConfigs = cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita)
 
     pgConfig = {
@@ -30,43 +19,34 @@ function connectToDatabase() {
     }
   }
 
-  return new Promise((resolve, reject) => {
-    const client = new Client(pgConfig);
-    client.connect(err => {
-      if (err) {
-        debug(err);
-        reject();
-      } else {
-        resolve(client);
-      }
-    });
-  });
+  const client = new Client(pgConfig);
+  await client.connect();
+  return client;
 }
 
-async function withLock(f) {
+async function tryWithLock(schemas, cloudFormation, f) {
   let pg;
 
   try {
-    pg = await connectToDatabase();
+    pg = await connectToDatabase(schemas, cloudFormation);
   } catch {
     debug("Unable to connect to database for locking, skipping.");
     return;
   }
 
+  await pg.query(`set idle_in_transaction_session_timeout = ${LOCK_TIMEOUT_MS}`);
+  
   try {
-    await new Promise(resolve => {
-      console.log("run");
-      pg.query("select * from ret0.hubs", (err, res) => {
-      console.log("ran");
-        console.log(res);
-        resolve();
-      });
-    });
-
-    await f();
+    await pg.query("BEGIN");
+    const res = await pg.query(`select pg_try_advisory_xact_lock(${LOCK_ID})`);
+    if (res.rows[0].pg_try_advisory_xact_lock) {
+      await f();
+    }
+    await pg.query("COMMIT");
   } finally {
-    console.log("done");
+    // For now, don't bother with connection pooling since this is such a low throughput service
+    pg.end();
   }
 }
 
-module.exports = { withLock };
+module.exports = { tryWithLock };
