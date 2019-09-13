@@ -16,3 +16,4 @@ http_host = "127.0.0.1"
 http_port = 9631
 sup_host = "127.0.0.1"
 sup_port = 9632
+command = "hab"
