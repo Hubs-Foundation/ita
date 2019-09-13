@@ -3,7 +3,7 @@ const debug = require('debug')('ita:locking');
 const { Client } = require('pg');
 
 const LOCK_ID = -874238742382195 // Arbitrary lock id used for ita locking
-const LOCK_TIMEOUT_MS = 30000;
+const LOCK_TIMEOUT_MS = 1000 * 60 * 5;
 
 let pgConfig;
 
