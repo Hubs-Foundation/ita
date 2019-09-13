@@ -11,3 +11,7 @@ hab.http_host = { "type" = "string", "default" = "localhost" }
 hab.http_port = { "type" = "number", "default" = 9631 }
 hab.sup_host = { "type" = "string", "default" = "localhost" }
 hab.sup_port = { "type" = "number", "default" = 9632 }
+db.username = { "type" = "string", "default" = "admin" }
+db.password = { "type" = "string", "default" = "admin" }
+db.hostname = { "type" = "string", "default" = "localhost" }
+db.database = { "type" = "string", "default" = "ret_dev" }

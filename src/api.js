@@ -7,6 +7,7 @@ const AWS = require('aws-sdk');
 const { CloudFormation } = require("./cloud-formation");
 const { ParameterStore, Habitat } = require('hubs-configtool');
 const { loadSchemas, getDefaults, getEmptyValue } = require("./schemas");
+const { withLock } = require("./locking");
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
@@ -112,6 +113,13 @@ function create() {
     }
     const configs = await parameterStore.read(req.params.service);
     return res.json(configs);
+  }));
+
+  router.get('/configs/lock', forwardExceptions(async (req, res) => {
+    await withLock(() => {
+      console.log("in");
+    });
+    return res.json({});
   }));
 
   // reads the latest configs from the Habitat ring
