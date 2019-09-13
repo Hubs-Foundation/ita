@@ -50,30 +50,12 @@ function create(schemas, cloudFormation, parameterStore, habitat) {
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
-    await parameterStore.write(req.params.service, req.body);
-    await flush(req.params.service, cloudFormation, parameterStore, habitat, schemas);
-    return res.json({ msg: `Update succeeded.` });
-  }));
-
-  // flushes data from parameter store to habitat ring
-  router.post('/configs/flush/:service?', forwardExceptions(async (req, res) => {
-    if (!parameterStore.pathPrefix) {
-      return res.status(503).json({ error: "Service initializing." });
-    }
-    if (req.params.service && !(req.params.service in schemas)) {
-      return res.status(400).json({ error: "Invalid service name." });
-    }
-    const services = req.params.service ? [req.params.service] : Object.keys(schemas);
-    let msg = `Flush already underway.`
-
-    await tryWithLock(schemas, cloudFormation, async () => {
-      for (const srv of services) {
-        await flush(srv, cloudFormation, parameterStore, habitat, schemas);
-      }
-      msg = `Flush done. Services up-to-date: ${services.join(", ")}`
+    await tryWithLock(async () => {
+      await parameterStore.write(req.params.service, req.body);
+      await flush(req.params.service, cloudFormation, parameterStore, habitat, schemas);
     });
 
-    return res.json({ msg });
+    return res.json({ msg: `Update succeeded.` });
   }));
 
   return router;

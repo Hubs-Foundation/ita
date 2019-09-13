@@ -8,6 +8,9 @@ const AWS = require('aws-sdk');
 const { CloudFormation } = require("./cloud-formation");
 const { ParameterStore, Habitat } = require('hubs-configtool');
 const { loadSchemas } = require("./schemas");
+const { tryWithLock } = require("./locking");
+const flush = require("./flush");
+const AUTO_FLUSH_DURATION_MS = 30000;
 
 // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
 const credentialProvider = new AWS.CredentialProviderChain([
@@ -31,10 +34,6 @@ const parameterStore = new ParameterStore({
   // logger: { write: msg => debug(msg.trimEnd()) }
 }, null, process.env.AWS_PS_REQS_PER_SEC);
 
-cloudFormation.getName(process.env.AWS_STACK_ID).then(stackName => {
-  parameterStore.pathPrefix = `ita/${stackName}`;
-});
-
 const habitat = new Habitat(process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                             process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
 
@@ -51,6 +50,32 @@ app.use(function (req, res, _next) {
 app.use(function (err, req, res, _next) {
   debug(err);
   res.status(500).json({ error: "Internal error. See logs for details." });
+});
+
+const flushAllServices = async () => {
+  if (!parameterStore.pathPrefix) return; // Initializing, punt
+  const services = Object.keys(schemas);
+  let msg = `Auto-Flush: Flush already underway.`
+
+  await tryWithLock(schemas, cloudFormation, async () => {
+    for (const srv of services) {
+      try {
+        await flush(srv, cloudFormation, parameterStore, habitat, schemas);
+      } catch (e) {
+        debug(`Auto-flush of ${srv} failed.`);
+      }
+    }
+    msg = `Auto-Flush done. Services up-to-date: ${services.join(", ")}`
+  });
+
+  debug(msg);
+}
+// Flush all services regularly
+setInterval(flushAllServices, AUTO_FLUSH_DURATION_MS)
+
+cloudFormation.getName(process.env.AWS_STACK_ID).then(stackName => {
+  parameterStore.pathPrefix = `/ita/${stackName}`;
+  flushAllServices();
 });
 
 module.exports = app;
