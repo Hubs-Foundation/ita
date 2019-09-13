@@ -60,7 +60,8 @@ function create() {
     const defaultConfigs = getDefaults(schema);
     const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
 
-    // Any old configs not present in new configs implies they are no longer have a value, blank them out so this is idempotent
+    // Any old configs not present in new configs implies they are no longer have a value, blank them out for
+    // security and so subsequent runs will have no diff.
     const blankOldConfigs = {};
 
     for (let section in oldConfigs) {
