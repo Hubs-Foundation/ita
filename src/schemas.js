@@ -1,7 +1,8 @@
-const debug = require("debug")("ita");
-const fs = require("fs");
-const toml = require("@iarna/toml");
-const path = require("path");
+import debugFunc from "debug";
+import fs from "fs";
+import toml from "@iarna/toml";
+import path from "path";
+const debug = debugFunc("ita:schemas");
 
 // A TOML object is considered to be a config descriptor if it at least has
 // a "type" key and has no keys which aren't valid descriptor metadata.
@@ -83,4 +84,4 @@ function loadSchemas(dir) {
   return schemas;
 }
 
-module.exports = { loadSchemas, getDefaults, getEmptyValue, coerceToType };
+export { loadSchemas, getDefaults, getEmptyValue, coerceToType };

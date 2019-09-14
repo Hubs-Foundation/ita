@@ -1,18 +1,20 @@
-const diff = require('deep-diff').diff;
-const merge = require('lodash.merge');
-const debug = require('debug')('ita:flush');
+import { diff } from "deep-diff";
+import merge from "lodash.merge";
+import debugFunc from "debug";
 const { getDefaults, getEmptyValue } = require("./schemas");
+
+const debug = debugFunc("ita:flush");
 
 function getVersion(ts) {
   return Math.floor(ts / 1000);
 }
 
-async function flush(service, cloudFormation, parameterStore, habitat, schemas) {
+export default async function flush(service, cloudFormation, parameterStore, habitat, schemas) {
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
   const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
-  const parameterStoreConfigs = await parameterStore.read(service) || {};
+  const parameterStoreConfigs = (await parameterStore.read(service)) || {};
   const defaultConfigs = getDefaults(schema);
   const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
 
@@ -40,7 +42,7 @@ async function flush(service, cloudFormation, parameterStore, habitat, schemas) 
     for (const d of differences) {
       diffPaths.add(d.path.join("/"));
     }
-    debug(`Updating Habitat configs: ${Array.prototype.join(diffPaths, ', ')}`);
+    debug(`Updating Habitat configs: ${Array.prototype.join(diffPaths, ", ")}`);
     await habitat.write(service, process.env.HAB_SERVICE_GROUP_SUFFIX, newConfigs, getVersion(now));
     return diffPaths;
   } else {
@@ -48,5 +50,3 @@ async function flush(service, cloudFormation, parameterStore, habitat, schemas) 
     return null;
   }
 }
-
-module.exports = flush;

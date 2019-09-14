@@ -1,12 +1,12 @@
-const AWS = require("aws-sdk");
-const util = require("util");
-const { coerceToType } = require("./schemas");
+import AWS from "aws-sdk";
+import util from "util";
+import { coerceToType } from "./schemas";
 
 class CloudFormation {
   constructor(cfOptions, cmOptions, s3Options) {
     const cf = new AWS.CloudFormation(cfOptions);
-    const cm = new AWS.SecretsManager(cmOptions)
-    const s3 = new AWS.S3(s3Options)
+    const cm = new AWS.SecretsManager(cmOptions);
+    const s3 = new AWS.S3(s3Options);
     this.describeStacks = util.promisify(cf.describeStacks).bind(cf);
     this.getSecretValue = util.promisify(cm.getSecretValue).bind(cm);
     this.getS3Object = util.promisify(s3.getObject).bind(s3);
@@ -58,20 +58,22 @@ class CloudFormation {
         const value = output.OutputValue;
 
         if (!data[t.section]) {
-          data[t.section] = {}
+          data[t.section] = {};
         }
 
-        setters.push(new Promise(resolve => {
-          if (t.xform) {
-            this._performOutputXform(value, t.xform, t.args).then(value => {
+        setters.push(
+          new Promise(resolve => {
+            if (t.xform) {
+              this._performOutputXform(value, t.xform, t.args).then(value => {
+                data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
+                resolve();
+              });
+            } else {
               data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
               resolve();
-            })
-          } else {
-            data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
-            resolve();
-          }
-        }));
+            }
+          })
+        );
       }
     }
 
@@ -110,4 +112,4 @@ class CloudFormation {
   }
 }
 
-module.exports = { CloudFormation };
+export { CloudFormation };
