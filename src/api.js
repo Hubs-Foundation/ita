@@ -16,7 +16,7 @@ function getVersion(ts) {
   return Math.floor(ts / 1000);
 }
 
-function create() {
+async function createRouter() {
   // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
   const credentialProvider = new AWS.CredentialProviderChain([
     () => new AWS.EnvironmentCredentials('AWS'),
@@ -31,19 +31,14 @@ function create() {
   };
 
   const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
+  const parameterStore = new ParameterStore({
+    credentialProvider,
+    region: process.env.AWS_REGION,
+    retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
+    // logger: { write: msg => debug(msg.trimEnd()) }
+  }, process.env.AWS_PS_REQS_PER_SEC);
 
-  let parameterStore;
-
-  cloudFormation.getName(process.env.AWS_STACK_ID).then(stackName => {
-    const paramsPath = `ita/${stackName}`;
-
-    parameterStore = new ParameterStore({
-      credentialProvider,
-      region: process.env.AWS_REGION,
-      retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
-      // logger: { write: msg => debug(msg.trimEnd()) }
-    }, paramsPath, process.env.AWS_PS_REQS_PER_SEC);
-  });
+  const stackName = await cloudFormation.getName(process.env.AWS_STACK_ID);
 
   const habitat = new Habitat(process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
@@ -56,7 +51,8 @@ function create() {
     debug(`Flushing service ${service}...`);
     const schema = schemas[service];
     const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
-    const parameterStoreConfigs = await parameterStore.read(service) || {};
+    const prefix = `ita/${stackName}/${service}`;
+    const parameterStoreConfigs = await parameterStore.read(prefix) || {};
     const defaultConfigs = getDefaults(schema);
     const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
 
@@ -110,7 +106,8 @@ function create() {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await parameterStore.read(req.params.service);
+    const prefix = `ita/${stackName}/${req.params.service}`;
+    const configs = await parameterStore.read(prefix);
     return res.json(configs);
   }));
 
@@ -133,7 +130,8 @@ function create() {
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
-    await parameterStore.write(req.params.service, req.body);
+    const prefix = `ita/${stackName}/${req.params.service}`;
+    await parameterStore.write(prefix, req.body);
     await flushDiffs(req.params.service, Date.now());
     return res.json({ msg: `Update succeeded.` });
   }));
@@ -157,4 +155,4 @@ function create() {
   return router;
 }
 
-module.exports = { create };
+module.exports = { createRouter };
