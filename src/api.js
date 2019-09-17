@@ -7,7 +7,7 @@ function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
 }
 
-function create(schemas, cloudFormation, parameterStore, habitat) {
+function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
   const router = express.Router();
 
   // emits schemas for one or all services
@@ -27,7 +27,7 @@ function create(schemas, cloudFormation, parameterStore, habitat) {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await parameterStore.read(req.params.service);
+    const configs = await parameterStore.read(`ita/${stackName}/${req.params.service}`);
     return res.json(configs);
   }));
 
@@ -42,17 +42,14 @@ function create(schemas, cloudFormation, parameterStore, habitat) {
 
   // updates parameter store with new client-supplied values and flushes them to ring
   router.patch('/configs/:service', forwardExceptions(async (req, res) => {
-    if (!parameterStore.pathPrefix) {
-      return res.status(503).json({ error: "Service initializing." });
-    }
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
     await tryWithLock(async () => {
-      await parameterStore.write(req.params.service, req.body);
-      await flush(req.params.service, cloudFormation, parameterStore, habitat, schemas);
+      await parameterStore.write(`ita/${stackName}/${req.params.service}`, req.body);
+      await flush(req.params.service, stackName, cloudFormation, parameterStore, habitat, schemas);
     });
 
     return res.json({ msg: `Update succeeded.` });

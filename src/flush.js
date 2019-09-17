@@ -7,12 +7,12 @@ function getVersion(ts) {
   return Math.floor(ts / 1000);
 }
 
-async function flush(service, cloudFormation, parameterStore, habitat, schemas) {
+async function flush(service, stackName, cloudFormation, parameterStore, habitat, schemas) {
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
   const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
-  const parameterStoreConfigs = await parameterStore.read(service) || {};
+  const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
   const defaultConfigs = getDefaults(schema);
   const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX);
 
