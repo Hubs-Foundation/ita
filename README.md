@@ -11,7 +11,6 @@ Configuration schemas are TOML files where each configurable maps to an object (
 - `type`: one of `string`, `boolean`, `number`, `datetime`, or `list`.
 - `of` [optional]: if this value is a `list`, the `type` of each item in the list.
 - `default` [optional]: the default value for this configurable.
-- `from` [optional]: the CF stack output name this configurable should load a default from.
 
 You can use `bin/hab2schema` to generate a schema with types and defaults from a Habitat default.toml file (although in the future when these schemas are the source of truth, this generation should go the other direction.)
 

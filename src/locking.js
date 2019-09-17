@@ -2,21 +2,21 @@ const debug = require('debug')('ita:locking');
 
 const { Client } = require('pg');
 
-const LOCK_ID = -874238742382195 // Arbitrary lock id used for ita locking
+const LOCK_ID = -874238742382195; // Arbitrary lock id used for ita locking
 const LOCK_TIMEOUT_MS = 1000 * 60 * 5;
 
 let pgConfig;
 
 async function connectToDatabase(schemas, cloudFormation) {
   if (!pgConfig) {
-    const itaConfigs = cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita)
+    const itaConfigs = cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita);
 
     pgConfig = {
       user: process.env.PGUSER || itaConfigs.db.username,
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,
       database: process.env.PGDATABASE || itaConfigs.db.database
-    }
+    };
   }
 
   const client = new Client(pgConfig);
@@ -29,13 +29,13 @@ async function tryWithLock(schemas, cloudFormation, f) {
 
   try {
     pg = await connectToDatabase(schemas, cloudFormation);
-  } catch {
-    debug("Unable to connect to database for locking, skipping.");
+  } catch (err) {
+    debug(`Unable to connect to database for locking, skipping: ${err}`);
     return;
   }
 
   await pg.query(`set idle_in_transaction_session_timeout = ${LOCK_TIMEOUT_MS}`);
-  
+
   try {
     await pg.query("BEGIN");
     const res = await pg.query(`select pg_try_advisory_xact_lock(${LOCK_ID})`);

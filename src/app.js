@@ -72,6 +72,8 @@ async function createApp() {
 
     debug(msg);
   };
+
+  await flushAllServices();
   // Flush all services regularly
   setInterval(flushAllServices, AUTO_FLUSH_DURATION_MS);
 
