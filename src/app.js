@@ -36,7 +36,8 @@ async function createApp() {
     // logger: { write: msg => debug(msg.trimEnd()) }
   }, process.env.AWS_PS_REQS_PER_SEC);
 
-  const habitat = new Habitat(process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
+  const habitat = new Habitat(process.env.HAB_COMMAND,
+                              process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
 
   const schemas = loadSchemas(path.join(__dirname, "..", "schemas"));
