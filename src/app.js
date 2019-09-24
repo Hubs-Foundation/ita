@@ -40,7 +40,7 @@ async function createApp() {
                               process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
 
-  const schemas = loadSchemas(path.join(__dirname, "..", "schemas"));
+  const schemas = loadSchemas(process.env.SCHEMAS_DIR);
 
   const app = express();
   const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg.trimEnd()) } });
