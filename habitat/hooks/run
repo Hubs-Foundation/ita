@@ -25,6 +25,6 @@ export HAB_COMMAND="{{ cfg.hab.command }}"
 # Assumes we've granted UNIX read permissions to this file to the user running the service
 export HAB_CTL_SECRET=$(cat /hab/sup/default/CTL_SECRET)
 
-cd {{pkg.svc_path}}
-export SCHEMAS_DIR={{ pkg.svc_static_path }}/schemas
-exec node {{pkg.svc_static_path}}/bin/server
+cd {{ pkg.path }}
+export SCHEMAS_DIR={{ pkg.path }}/schemas
+exec node {{ pkg.path }}/dist/ita.js
