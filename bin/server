@@ -1,9 +1,9 @@
-#!/usr/bin/env node
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.defaults" });
 const debug = require('debug')('ita');
 
+debug("Firing up...");
 require('../src/app').createApp().then(app => {
   const server = app.listen(process.env.PORT, process.env.HOST);
   server.on('listening', () => {
