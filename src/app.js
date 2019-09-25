@@ -3,7 +3,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const api = require('./api');
-const path = require('path');
 const AWS = require('aws-sdk');
 const { CloudFormation } = require("./cloud-formation");
 const { ParameterStore, Habitat } = require('hubs-configtool');
