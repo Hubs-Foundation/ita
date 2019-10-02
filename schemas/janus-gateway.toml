@@ -38,6 +38,7 @@ transports.websockets.json = { "type" = "string", "default" = "indented" }
 transports.websockets.ws = { "type" = "string", "default" = "no" }
 transports.websockets.ws_port = { "type" = "number", "default" = 8188 }
 transports.websockets.wss = { "type" = "string", "default" = "yes" }
+transports.websockets.wss_port = { "type" = "number", "default" = 8189 }
 transports.websockets.admin_ws = { "type" = "string", "default" = "no" }
 transports.websockets.admin_ws_port = { "type" = "number", "default" = 7188 }
 transports.websockets.admin_wss = { "type" = "string", "default" = "no" }

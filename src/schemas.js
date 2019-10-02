@@ -37,9 +37,9 @@ function getEmptyValue(schema, section, config) {
 }
 
 // Given the schema and the path to a config, coerces the value to the type of the descriptor if one is present.
-function coerceToType(schema, section, config, value) {
+function coerceToType(schema, section, subSection, config, value) {
   if (!schema[section]) return value;
-  const descriptor = schema[section][config];
+  const descriptor = subSection ? schema[section][subSection][config] : schema[section][config];
   if (!descriptor || !("type" in descriptor)) return value;
   if (descriptor.type === "number" && value) return parseInt(value);
   return value;

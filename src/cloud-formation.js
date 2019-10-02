@@ -34,8 +34,9 @@ class CloudFormation {
         const targetSpecifiers = targetsMatch[1].split(",");
         targets = targetSpecifiers.map(spec => {
           const [path, xform] = spec.split("!");
-          const [service, section, config] = path.split("/");
-          const target = { service, section, config, xform: null, args: [] };
+          const [service, sectionAndSub, config] = path.split("/");
+          const [section, subSection] = sectionAndSub.split(".");
+          const target = { service, section, subSection, config, xform: null, args: [] };
 
           if (xform) {
             target.xform = xform;
@@ -61,14 +62,20 @@ class CloudFormation {
           data[t.section] = {}
         }
 
+        if (t.subSection && !data[t.section][t.subSection]) {
+          data[t.section][t.subSection] = {};
+        }
+
         setters.push(new Promise(resolve => {
+          const dataTarget = t.subSection ? data[t.section][t.subSection] : data[t.section];
+
           if (t.xform) {
             this._performOutputXform(value, t.xform, t.args).then(value => {
-              data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
+              dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
               resolve();
             })
           } else {
-            data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
+            dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
             resolve();
           }
         }));
