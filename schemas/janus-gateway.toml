@@ -17,7 +17,7 @@ nat.ice_tcp = { "type" = "string", "default" = "false" }
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet" }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
 plugins.sfu.max_room_size = { "type" = "number", "default" = 64 }
-transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_http.so", "libjanus_pfunix.so"] }
+transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_pfunix.so"] }
 transports.pfunix.enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.admin_enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.json = { "type" = "string", "default" = "indented" }
@@ -31,9 +31,9 @@ transports.http.port = { "type" = "number", "default" = 8080 }
 transports.http.https = { "type" = "string", "default" = "no" }
 transports.http.admin_base_path = { "type" = "string", "default" = "/admin" }
 transports.http.admin_threads = { "type" = "string", "default" = "unlimited" }
-transports.http.admin_http = { "type" = "string", "default" = "no" }
+transports.http.admin_http = { "type" = "string", "default" = "yes" }
 transports.http.admin_port = { "type" = "number", "default" = 7088 }
-transports.http.admin_https = { "type" = "string", "default" = "yes" }
+transports.http.admin_https = { "type" = "string", "default" = "no" }
 transports.websockets.json = { "type" = "string", "default" = "indented" }
 transports.websockets.ws = { "type" = "string", "default" = "no" }
 transports.websockets.ws_port = { "type" = "number", "default" = 8188 }
