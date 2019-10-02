@@ -95,12 +95,12 @@ class CloudFormation {
       } else {
         return secretValue;
       }
-    } else if (xform === "read-s3-file" || xform === "read-s3-file-as-json") {
+    } else if (xform === "read-s3-file-escaped" || xform === "read-s3-file-as-json") {
       const [_, bucket, key] = value.match(/^s3:\/\/([^/]+)\/(.*)$/);
       const obj = await this.getS3Object({ Bucket: bucket, Key: key });
       const body = obj.Body.toString();
-      if (xform === "read-s3-file") {
-        return body;
+      if (xform === "read-s3-file-escaped") {
+        return body.replace(/\n/g, "\\n");
       } else {
         return JSON.parse(body)[args[0]];
       }

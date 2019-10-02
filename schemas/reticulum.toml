@@ -18,5 +18,6 @@ db.database = { "type" = "string", "default" = "ret_dev" }
 db.template = { "type" = "string", "default" = "template0" }
 db.pool_size = { "type" = "number", "default" = 16 }
 security.content_security_policy = { "type" = "string", "default" = "default-src 'self'" }
-security.cors_origins = { "type" = "string", "default" = "[\"*\"]" }
+security.cors_origins = { "type" = "string", "default" = "*" }
+storage.ttl = { "type" = "number", "default" = 172800 }
 pages.insecure_ssl = { "type" = "string", "default" = "false" }
