@@ -60,6 +60,8 @@ async function createApp() {
 
     await tryWithLock(schemas, cloudFormation, async () => {
       for (const srv of services) {
+        if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
+
         try {
           await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
         } catch (e) {

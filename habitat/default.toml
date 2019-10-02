@@ -11,6 +11,7 @@ ps_reqs_per_sec = 3
 ps_retry_delay_ms = 5000
 
 [hab]
+org = ""
 service_group_suffix = "default"
 http_host = "127.0.0.1"
 http_port = 9631

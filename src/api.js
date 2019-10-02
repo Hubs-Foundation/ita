@@ -36,7 +36,7 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP_SUFFIX);
+    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP_SUFFIX, process.env.HAB_ORG);
     return res.json(configs);
   }));
 
@@ -44,6 +44,9 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
   router.patch('/configs/:service', forwardExceptions(async (req, res) => {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
+    }
+    if (req.params.service === "ita") {
+      return res.status(400).json({ error: "ita cannot manage ita." });
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
