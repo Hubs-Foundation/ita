@@ -14,7 +14,7 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
   const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
   const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
   const defaultConfigs = getDefaults(schema);
-  const oldConfigs = await habitat.read(service, process.env.HAB_SERVICE_GROUP_SUFFIX, process.env.HAB_ORG);
+  const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
   debug(`Computing delta for ${service}...`);
 
   // Any old configs not present in new configs implies they are no longer have a value, blank them out for
@@ -42,7 +42,7 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
       diffPaths.add(d.path.join("/"));
     }
     debug(`Updating Habitat configs: ${Array.prototype.join(diffPaths, ', ')}`);
-    await habitat.write(service, process.env.HAB_SERVICE_GROUP_SUFFIX, process.env.HAB_ORG, newConfigs, getVersion(now));
+    await habitat.write(service, process.env.HAB_GROUP, process.env.HAB_ORG, newConfigs, getVersion(now));
     return diffPaths;
   } else {
     debug(`All ${service} configs already up-to-date.`);

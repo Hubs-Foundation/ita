@@ -36,7 +36,7 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await habitat.read(req.params.service, process.env.HAB_SERVICE_GROUP_SUFFIX, process.env.HAB_ORG);
+    const configs = await habitat.read(req.params.service, process.env.HAB_GROUP, process.env.HAB_ORG);
     return res.json(configs);
   }));
 
