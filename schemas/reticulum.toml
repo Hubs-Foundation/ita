@@ -13,6 +13,7 @@ oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
 db.username = { "type" = "string", "default" = "admin" }
 db.password = { "type" = "string", "default" = "admin" }
+db.postgrest_password = { "type" = "string", "default" = "admin" }
 db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "ret_dev" }
 db.template = { "type" = "string", "default" = "template0" }
