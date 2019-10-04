@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 dotenv.config({ path: ".env" });
 dotenv.config({ path: ".env.defaults" });
 const debug = require('debug')('ita');
-const fs = require('fs');
 
 debug("Firing up...");
 
