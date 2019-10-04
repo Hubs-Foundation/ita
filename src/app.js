@@ -73,6 +73,7 @@ async function createApp() {
           await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
         } catch (e) {
           debug(`Auto-flush of ${srv} failed.`);
+          debug(e);
         }
       }
       msg = `Auto-Flush done. Services up-to-date: ${services.join(", ")}`;

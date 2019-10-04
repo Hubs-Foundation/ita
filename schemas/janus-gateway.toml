@@ -4,6 +4,7 @@ general.log_to_syslog = { "type" = "string", "default" = "true" }
 general.debug_level = { "type" = "number", "default" = 4 }
 general.token_auth = { "type" = "string", "default" = "no" }
 general.session_timeout = { "type" = "number", "default" = 60 }
+general.admin_secret = { "type" = "string", "default" = "secret" }
 media.ipv6 = { "type" = "string", "default" = "true" }
 media.max_nack_queue = { "type" = "number", "default" = 300 }
 media.rtp_port_range = { "type" = "string", "default" = "20000-40000" }
@@ -28,6 +29,7 @@ transports.http.base_path = { "type" = "string", "default" = "/janus" }
 transports.http.threads = { "type" = "string", "default" = "unlimited" }
 transports.http.http = { "type" = "string", "default" = "no" }
 transports.http.port = { "type" = "number", "default" = 8080 }
+transports.http.secure_port = { "type" = "number", "default" = 8443 }
 transports.http.https = { "type" = "string", "default" = "no" }
 transports.http.admin_base_path = { "type" = "string", "default" = "/admin" }
 transports.http.admin_threads = { "type" = "string", "default" = "unlimited" }
