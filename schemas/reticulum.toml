@@ -2,12 +2,20 @@ ret.pool = { "type" = "string", "default" = "default" }
 phx.port = { "type" = "number", "default" = 4000 }
 phx.ip = { "type" = "string", "default" = "127.0.0.1" }
 phx.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+phx.url_host = { "type" = "string", "default" = "" }
+phx.url_port = { "type" = "number", "default" = 443 }
 phx.url_host_prefix = { "type" = "string", "default" = "" }
+phx.static_url_host = { "type" = "string", "default" = "" }
 phx.static_url_host_prefix = { "type" = "string", "default" = "" }
+phx.cors_proxy_url_host = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
 guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+guardian.perms_key = { "type" = "string", "default" = "" }
+guardian.oauth_token_key = { "type" = "string", "default" = "" }
 erlang.node_cookie = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
+erlang.bot_access_key = { "type" = "string", "default" = "" }
 habitat.http_port = { "type" = "number", "default" = 9631 }
+habitat.ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }
 oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
 db.username = { "type" = "string", "default" = "admin" }
@@ -19,6 +27,23 @@ db.template = { "type" = "string", "default" = "template0" }
 db.pool_size = { "type" = "number", "default" = 16 }
 security.content_security_policy = { "type" = "string", "default" = "default-src 'self'" }
 security.cors_origins = { "type" = "string", "default" = "*" }
+uploads.storage_path = { "type" = "string", "default" = "/storage" }
 uploads.ttl = { "type" = "number", "default" = 172800 }
 pages.insecure_ssl = { "type" = "string", "default" = "false" }
-habitat.ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }
+janus.admin_secret = { "type" = "string", "default" = "secret" }
+janus.admin_port = { "type" = "number", "default" = 7000 }
+janus.service_name = { "type" = "string", "default" = "janus-gateway" }
+run.hostname_dns_suffix = { "type" = "string", "default" = "" }
+web_push.public_key = { "type" = "string", "default" = "" }
+web_push.private_key = { "type" = "string", "default" = "" }
+web_push.subject = { "type" = "string", "default" = "" }
+pages.hubs_page_origin = { "type" = "string", "default" = "" }
+pages.spoke_page_origin = { "type" = "string", "default" = "" }
+speelycaptor.speelycaptor_endpoint = { "type" = "string", "default" = "" }
+photomnemonic.photomnemonic_endpoint = { "type" = "string", "default" = "" }
+email.username = { "type" = "string", "default" = "" }
+email.password = { "type" = "string", "default" = "" }
+email.from = { "type" = "string", "default" = "" }
+email.server = { "type" = "string", "default" = "" }
+email.port = { "type" = "number", "default" = 587 }
+resolver.ytdl_host = { "type" = "string", "default" = "" }

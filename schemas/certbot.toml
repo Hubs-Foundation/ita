@@ -1,0 +1,5 @@
+general.plugin = { "type" = "string", "default" = "none" }
+general.server = { "type" = "string", "default" = "https://acme-v02.api.letsencrypt.org/directory" }
+general.renewal_interval = { "type" = "number", "default" = 86400 }
+general.admin_email = { "type" = "string", "default" = "noreply@localhost" }
+general.domain = { "type" = "string", "default" = "localhost", "unmanaged" = true }
