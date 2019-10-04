@@ -7,7 +7,6 @@ phx.static_url_host_prefix = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
 guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
 erlang.node_cookie = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
-habitat.ip = { "type" = "string", "default" = "127.0.0.1" }
 habitat.http_port = { "type" = "number", "default" = 9631 }
 oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
@@ -22,3 +21,4 @@ security.content_security_policy = { "type" = "string", "default" = "default-src
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.ttl = { "type" = "number", "default" = 172800 }
 pages.insecure_ssl = { "type" = "string", "default" = "false" }
+habitat.ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }

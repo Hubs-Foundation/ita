@@ -74,7 +74,43 @@ function loadSchemas(dir) {
     if (name.endsWith(".toml")) {
       try {
         const schemaContents = fs.readFileSync(path.join(dir, name));
-        schemas[path.basename(name, ".toml")] = toml.parse(schemaContents);
+        const schema = toml.parse(schemaContents);
+
+        // For completeness, all server configs are in the schema. However, some are
+        // marked as 'unmanaged', which means ita is not responsible for syncing them
+        // to the ring. (Eg they are managed in user.toml) So, we strip them here so
+        // the rest of ita effectively can ignore the distinction.
+        //
+        // Note that as soon as a config is synced to the ring, it becomes impossible
+        // to override it with user.toml, so basically once a config becomes managed
+        // by ita it is not possible to revoke management. (Additionally, it becomes
+        // impossible to vary that config on a per-node basis.);
+        const stripUnmanaged = (o) => {
+          const unmanaged = [];
+
+          for (const k of Object.keys(o)) {
+            if ("unmanaged" in o[k] && o[k].unmanaged) {
+              unmanaged.push(k);
+            }
+          }
+
+          for (const k of unmanaged) {
+            delete o[k];
+          }
+        }
+
+        for (const group of Object.keys(schema)) {
+          stripUnmanaged(schema[group]);
+
+          for (const field of Object.keys(schema[group])) {
+            if (!("type" in schema[group][field])) {
+              // Subgroup
+              stripUnmanaged(schema[group][field]);
+            }
+          }
+        }
+
+        schemas[path.basename(name, ".toml")] = schema;
       } catch (err) {
         debug(`Error loading schema file ${name}: ${err}.`);
       }

@@ -16,6 +16,7 @@ nat.nice_debug = { "type" = "string", "default" = "false" }
 nat.ice_lite = { "type" = "string", "default" = "false" }
 nat.ice_tcp = { "type" = "string", "default" = "false" }
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet" }
+nat.nat_1_1_mapping = { "type" = "string", "default" = "vmnet", "unmanaged" = true }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
 plugins.sfu.max_room_size = { "type" = "number", "default" = 64 }
 transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_pfunix.so"] }
@@ -28,7 +29,7 @@ transports.http.json = { "type" = "string", "default" = "indented" }
 transports.http.base_path = { "type" = "string", "default" = "/janus" }
 transports.http.threads = { "type" = "string", "default" = "unlimited" }
 transports.http.http = { "type" = "string", "default" = "no" }
-transports.http.admin_ip = { "type" = "string", "default" = "127.0.0.1" }
+transports.http.admin_ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }
 transports.http.port = { "type" = "number", "default" = 8080 }
 transports.http.secure_port = { "type" = "number", "default" = 8443 }
 transports.http.https = { "type" = "string", "default" = "no" }
