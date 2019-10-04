@@ -68,6 +68,10 @@ async function createApp() {
     await tryWithLock(schemas, cloudFormation, async () => {
       for (const srv of services) {
         if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
+        if (srv === "hubs-discord-bot") {
+          debug("Skipping Hubs Discord bot until part of polycosm"); // Skip bot for now
+          continue;
+        }
 
         try {
           await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
