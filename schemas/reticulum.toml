@@ -15,7 +15,7 @@ guardian.oauth_token_key = { "type" = "string", "default" = "" }
 erlang.node_cookie = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
 erlang.bot_access_key = { "type" = "string", "default" = "" }
 habitat.http_port = { "type" = "number", "default" = 9631 }
-habitat.ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }
+habitat.ip = { "type" = "string", "default" = "127.0.0.1" }
 oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
 db.username = { "type" = "string", "default" = "admin" }
