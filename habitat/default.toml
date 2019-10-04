@@ -3,7 +3,6 @@ host = "localhost"
 port = 3000
 debug = "ita*,configtool*"
 req_log_format = ":date[iso] :method :url :status"
-ready_file = "{{ pkg.svc_var_path }}/ready"
 
 [aws]
 region = "us-west-1"

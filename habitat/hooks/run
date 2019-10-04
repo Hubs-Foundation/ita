@@ -8,7 +8,7 @@ export HOST="{{ cfg.general.host }}"
 export PORT="{{ cfg.general.port }}"
 export DEBUG="{{ cfg.general.debug }}"
 export REQ_LOG_FORMAT="{{ cfg.general.req_log_format }}"
-export ITA_READY_FILE="{{ cfg.general.ready_file }}"
+export ITA_READY_FILE="{{ pkg.svc_var_path }}/ready"
 
 export AWS_REGION="{{ cfg.aws.region }}"
 export AWS_STACK_ID="{{ cfg.aws.stack_id }}"
