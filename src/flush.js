@@ -22,7 +22,6 @@ function deleteUnmanagedConfigs(schema, configs) {
     }
 
     for (const k of unmanaged) {
-      debug("Nuke " + k);
       delete o[k];
     }
   }
