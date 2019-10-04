@@ -5,6 +5,7 @@ general.debug_level = { "type" = "number", "default" = 4 }
 general.token_auth = { "type" = "string", "default" = "no" }
 general.session_timeout = { "type" = "number", "default" = 60 }
 general.admin_secret = { "type" = "string", "default" = "secret" }
+general.api_secret = { "type" = "string", "default" = "" }
 media.ipv6 = { "type" = "string", "default" = "true" }
 media.max_nack_queue = { "type" = "number", "default" = 300 }
 media.rtp_port_range = { "type" = "string", "default" = "20000-40000" }
