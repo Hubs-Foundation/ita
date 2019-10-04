@@ -28,6 +28,7 @@ transports.http.json = { "type" = "string", "default" = "indented" }
 transports.http.base_path = { "type" = "string", "default" = "/janus" }
 transports.http.threads = { "type" = "string", "default" = "unlimited" }
 transports.http.http = { "type" = "string", "default" = "no" }
+transports.http.admin_ip = { "type" = "string", "default" = "127.0.0.1" }
 transports.http.port = { "type" = "number", "default" = 8080 }
 transports.http.secure_port = { "type" = "number", "default" = 8443 }
 transports.http.https = { "type" = "string", "default" = "no" }
