@@ -42,7 +42,7 @@ web_push.subject = { "type" = "string", "default" = "" }
 pages.hubs_page_origin = { "type" = "string", "default" = "" }
 pages.spoke_page_origin = { "type" = "string", "default" = "" }
 speelycaptor.speelycaptor_endpoint = { "type" = "string", "default" = "" }
-photomnemonic.photomnemonic_endpoint = { "type" = "string", "default" = "" }
+resolver.photomnemonic_endpoint = { "type" = "string", "default" = "" }
 email.username = { "type" = "string", "default" = "" }
 email.password = { "type" = "string", "default" = "" }
 email.from = { "type" = "string", "default" = "" }
