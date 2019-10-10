@@ -34,8 +34,9 @@ class CloudFormation {
         const targetSpecifiers = targetsMatch[1].split(",");
         targets = targetSpecifiers.map(spec => {
           const [path, xform] = spec.split("!");
-          const [service, section, config] = path.split("/");
-          const target = { service, section, config, xform: null, args: [] };
+          const [service, sectionAndSub, config] = path.split("/");
+          const [section, subSection] = sectionAndSub.split(".");
+          const target = { service, section, subSection, config, xform: null, args: [] };
 
           if (xform) {
             target.xform = xform;
@@ -61,14 +62,20 @@ class CloudFormation {
           data[t.section] = {}
         }
 
+        if (t.subSection && !data[t.section][t.subSection]) {
+          data[t.section][t.subSection] = {};
+        }
+
         setters.push(new Promise(resolve => {
+          const dataTarget = t.subSection ? data[t.section][t.subSection] : data[t.section];
+
           if (t.xform) {
             this._performOutputXform(value, t.xform, t.args).then(value => {
-              data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
+              dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
               resolve();
             })
           } else {
-            data[t.section][t.config] = coerceToType(schema, t.section, t.config, value);
+            dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
             resolve();
           }
         }));
@@ -95,12 +102,12 @@ class CloudFormation {
       } else {
         return secretValue;
       }
-    } else if (xform === "read-s3-file" || xform === "read-s3-file-as-json") {
+    } else if (xform === "read-s3-file-escaped" || xform === "read-s3-file-as-json") {
       const [_, bucket, key] = value.match(/^s3:\/\/([^/]+)\/(.*)$/);
       const obj = await this.getS3Object({ Bucket: bucket, Key: key });
       const body = obj.Body.toString();
-      if (xform === "read-s3-file") {
-        return body;
+      if (xform === "read-s3-file-escaped") {
+        return body.replace(/\n/g, "\\n");
       } else {
         return JSON.parse(body)[args[0]];
       }

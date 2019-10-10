@@ -9,9 +9,9 @@ let pgConfig;
 
 async function connectToDatabase(schemas, cloudFormation) {
   if (!pgConfig) {
-    const itaConfigs = cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita);
+    const itaConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita);
 
-    pgConfig = {
+    pgConfig = { // eslint-disable-line require-atomic-updates
       user: process.env.PGUSER || itaConfigs.db.username,
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,

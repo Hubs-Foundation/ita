@@ -1,3 +1,5 @@
+const fs = require('fs');
+const process = require('process');
 const debug = require('debug')('ita');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -12,6 +14,11 @@ const flush = require("./flush");
 const AUTO_FLUSH_DURATION_MS = 30000;
 
 async function createApp() {
+  // Remove existing ready file, if exists
+  if (process.env.READY_FILE && fs.existsSync(process.env.READY_FILE)) {
+    fs.unlinkSync(process.env.READY_FILE);
+  }
+
   // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
   const credentialProvider = new AWS.CredentialProviderChain([
     () => new AWS.EnvironmentCredentials('AWS'),
@@ -60,10 +67,17 @@ async function createApp() {
 
     await tryWithLock(schemas, cloudFormation, async () => {
       for (const srv of services) {
+        if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
+        if (!await habitat.has(srv, process.env.HAB_GROUP, process.env.HAB_ORG)) {
+          debug(`${srv}.${process.env.HAB_GROUP} not running, skipping.`);
+          continue;
+        }
+
         try {
           await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
         } catch (e) {
           debug(`Auto-flush of ${srv} failed.`);
+          debug(e);
         }
       }
       msg = `Auto-Flush done. Services up-to-date: ${services.join(", ")}`;
@@ -75,6 +89,19 @@ async function createApp() {
   await flushAllServices();
   // Flush all services regularly
   setInterval(flushAllServices, AUTO_FLUSH_DURATION_MS);
+
+  // Touch ready file
+  if (process.env.READY_FILE) {
+    fs.closeSync(fs.openSync(process.env.READY_FILE, 'w'));
+
+    process.on('SIGINT', () => {
+      if (fs.existsSync(process.env.READY_FILE)) {
+        fs.unlinkSync(process.env.READY_FILE);
+      }
+
+      process.exit(); // eslint-disable-line no-process-exit
+    });
+  }
 
   return app;
 }

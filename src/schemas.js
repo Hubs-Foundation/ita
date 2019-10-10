@@ -5,7 +5,7 @@ const path = require("path");
 
 // A TOML object is considered to be a config descriptor if it at least has
 // a "type" key and has no keys which aren't valid descriptor metadata.
-const DESCRIPTOR_FIELDS = ["default", "type", "of"];
+const DESCRIPTOR_FIELDS = ["default", "type", "of", "unmanaged"];
 function isDescriptor(obj) {
   if (typeof obj !== "object") return false;
   if (!("type" in obj)) return false;
@@ -31,15 +31,23 @@ function getEmptyValue(schema, section, config) {
 
   const descriptor = schema[section][config];
   if (!descriptor) return "";
-  if (!("type" in descriptor)) return "";
+  if (!("type" in descriptor)) return {};
   if (descriptor.type === "number") return 0;
   return "";
 }
 
+function isUnmanaged(schema, section, subSection, config) {
+  if (!schema[section]) return true;
+  const descriptor = subSection ? schema[section][subSection][config] : schema[section][config];
+  if (!descriptor) return true;
+  if ("unmanaged" in descriptor) return descriptor.unmanaged;
+  return false;
+}
+
 // Given the schema and the path to a config, coerces the value to the type of the descriptor if one is present.
-function coerceToType(schema, section, config, value) {
+function coerceToType(schema, section, subSection, config, value) {
   if (!schema[section]) return value;
-  const descriptor = schema[section][config];
+  const descriptor = subSection ? schema[section][subSection][config] : schema[section][config];
   if (!descriptor || !("type" in descriptor)) return value;
   if (descriptor.type === "number" && value) return parseInt(value);
   return value;
@@ -83,4 +91,4 @@ function loadSchemas(dir) {
   return schemas;
 }
 
-module.exports = { loadSchemas, getDefaults, getEmptyValue, coerceToType };
+module.exports = { loadSchemas, getDefaults, getEmptyValue, isUnmanaged, coerceToType, isDescriptor };

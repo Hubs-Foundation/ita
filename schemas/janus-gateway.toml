@@ -4,6 +4,8 @@ general.log_to_syslog = { "type" = "string", "default" = "true" }
 general.debug_level = { "type" = "number", "default" = 4 }
 general.token_auth = { "type" = "string", "default" = "no" }
 general.session_timeout = { "type" = "number", "default" = 60 }
+general.admin_secret = { "type" = "string", "default" = "secret" }
+general.api_secret = { "type" = "string", "default" = "" }
 media.ipv6 = { "type" = "string", "default" = "true" }
 media.max_nack_queue = { "type" = "number", "default" = 300 }
 media.rtp_port_range = { "type" = "string", "default" = "20000-40000" }
@@ -15,9 +17,10 @@ nat.nice_debug = { "type" = "string", "default" = "false" }
 nat.ice_lite = { "type" = "string", "default" = "false" }
 nat.ice_tcp = { "type" = "string", "default" = "false" }
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet" }
+nat.nat_1_1_mapping = { "type" = "string", "default" = "vmnet", "unmanaged" = true }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
-plugins.sfu.max_room_size = { "type" = "number", "default" = 12 }
-transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_http.so", "libjanus_pfunix.so", "libjanus_websockets.so"] }
+plugins.sfu.max_room_size = { "type" = "number", "default" = 64 }
+transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_pfunix.so"] }
 transports.pfunix.enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.admin_enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.json = { "type" = "string", "default" = "indented" }
@@ -26,18 +29,21 @@ transports.pfunix.admin_type = { "type" = "string", "default" = "SOCK_SEQPACKET"
 transports.http.json = { "type" = "string", "default" = "indented" }
 transports.http.base_path = { "type" = "string", "default" = "/janus" }
 transports.http.threads = { "type" = "string", "default" = "unlimited" }
-transports.http.http = { "type" = "string", "default" = "yes" }
+transports.http.http = { "type" = "string", "default" = "no" }
+transports.http.admin_ip = { "type" = "string", "default" = "127.0.0.1", "unmanaged" = true }
 transports.http.port = { "type" = "number", "default" = 8080 }
+transports.http.secure_port = { "type" = "number", "default" = 8443 }
 transports.http.https = { "type" = "string", "default" = "no" }
 transports.http.admin_base_path = { "type" = "string", "default" = "/admin" }
 transports.http.admin_threads = { "type" = "string", "default" = "unlimited" }
-transports.http.admin_http = { "type" = "string", "default" = "no" }
+transports.http.admin_http = { "type" = "string", "default" = "yes" }
 transports.http.admin_port = { "type" = "number", "default" = 7088 }
 transports.http.admin_https = { "type" = "string", "default" = "no" }
 transports.websockets.json = { "type" = "string", "default" = "indented" }
-transports.websockets.ws = { "type" = "string", "default" = "yes" }
+transports.websockets.ws = { "type" = "string", "default" = "no" }
 transports.websockets.ws_port = { "type" = "number", "default" = 8188 }
-transports.websockets.wss = { "type" = "string", "default" = "no" }
+transports.websockets.wss = { "type" = "string", "default" = "yes" }
+transports.websockets.wss_port = { "type" = "number", "default" = 8189 }
 transports.websockets.admin_ws = { "type" = "string", "default" = "no" }
 transports.websockets.admin_ws_port = { "type" = "number", "default" = 7188 }
 transports.websockets.admin_wss = { "type" = "string", "default" = "no" }
