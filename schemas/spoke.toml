@@ -1,3 +1,4 @@
+general.hubs_server = { "type" = "string" }
 general.reticulum_server = { "type" = "string" }
 general.cors_proxy_server = { "type" = "string" }
 general.base_assets_path = { "type" = "string", default = "/" }
