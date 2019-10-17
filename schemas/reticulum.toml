@@ -25,11 +25,11 @@ db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "ret_dev" }
 db.template = { "type" = "string", "default" = "template0" }
 db.pool_size = { "type" = "number", "default" = 16 }
-security.content_security_policy = { "type" = "string", "default" = "default-src 'self'" }
+security.content_security_policy = { "type" = "string", "default" = "default-src 'self'", category = "advanced", name = "Content Security Policy", description = "Content-Security-Policy override, leave blank to use the generated CSP." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
-uploads.ttl = { "type" = "number", "default" = 172800 }
+uploads.ttl = { "type" = "number", "default" = 172800, category = "storage", name = "Storage TTL (seconds)", description = "Un-pinned stored files are removed after this TTL. (Default: 172800 seconds = 2 days)" }
 pages.insecure_ssl = { "type" = "string", "default" = "false" }
 janus.admin_secret = { "type" = "string", "default" = "secret" }
 janus.admin_port = { "type" = "number", "default" = 7000 }
@@ -43,9 +43,9 @@ pages.hubs_page_origin = { "type" = "string", "default" = "" }
 pages.spoke_page_origin = { "type" = "string", "default" = "" }
 speelycaptor.speelycaptor_endpoint = { "type" = "string", "default" = "" }
 resolver.photomnemonic_endpoint = { "type" = "string", "default" = "" }
-email.username = { "type" = "string", "default" = "" }
-email.password = { "type" = "string", "default" = "" }
-email.from = { "type" = "string", "default" = "" }
-email.server = { "type" = "string", "default" = "" }
-email.port = { "type" = "number", "default" = 587 }
+email.username = { "type" = "string", "default" = "", category = "email", name = "SMTP Username", description = "Custom SMTP username for sending email. Leave blank to use AWS Simple Email Service with your Email Zone." }
+email.password = { "type" = "string", "default" = "", category = "email" name = "SMTP Password", description = "Custom SMTP password for sending email. Leave blank to use AWS Simple Email Service with your Email Zone." }
+email.from = { "type" = "string", "default" = "", category = "email", name = "SMTP From:", description = "Custom From: address for sending email. Leave blank to use noreply@<your email domain>.com" }
+email.server = { "type" = "string", "default" = "", category = "email", name = "SMTP Server", description = "Custom SMTP server for email. Leave blank to use AWS Simple Email Service with your Email Zone." }
+email.port = { "type" = "number", "default" = 587, description = "Custom SMTP port for email." }
 resolver.ytdl_host = { "type" = "string", "default" = "" }
