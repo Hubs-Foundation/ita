@@ -44,10 +44,10 @@ pages.spoke_page_origin = { "type" = "string", "default" = "" }
 speelycaptor.speelycaptor_endpoint = { "type" = "string", "default" = "" }
 resolver.photomnemonic_endpoint = { "type" = "string", "default" = "" }
 email.username = { "type" = "string", "default" = "", category = "email", name = "SMTP Username", description = "Custom SMTP username for sending email. Leave blank to use AWS Simple Email Service with your Email Zone." }
-email.password = { "type" = "string", "default" = "", category = "email" name = "SMTP Password", description = "Custom SMTP password for sending email. Leave blank to use AWS Simple Email Service with your Email Zone." }
+email.password = { "type" = "string", "default" = "", category = "email", name = "SMTP Password", description = "Custom SMTP password for sending email. Leave blank to use AWS Simple Email Service with your Email Zone." }
 email.from = { "type" = "string", "default" = "", category = "email", name = "SMTP From:", description = "Custom From: address for sending email. Leave blank to use noreply@<your email domain>.com" }
 email.server = { "type" = "string", "default" = "", category = "email", name = "SMTP Server", description = "Custom SMTP server for email. Leave blank to use AWS Simple Email Service with your Email Zone." }
-email.port = { "type" = "number", "default" = 587, description = "Custom SMTP port for email." }
+email.port = { "type" = "number", "default" = 587, category = "email", name = "SMTP Port", description = "Custom SMTP port for email." }
 resolver.ytdl_host = { "type" = "string", "default" = "" }
 resolver.sketchfab_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Sketchfab API Key", description = "API key to use for Sketchfab model search." }
 resolver.google_poly_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Google Poly API Key", description = "API key to use for Google Poly model search." }

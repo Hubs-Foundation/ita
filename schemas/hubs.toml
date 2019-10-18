@@ -4,7 +4,7 @@ general.base_assets_path = { "type" = "string", default = "/" }
 general.thumbnail_server = { "type" = "string" }
 general.non_cors_proxy_domains = { "type" = "string" }
 general.postgrest_server = { "type" = "string" }
-general.sentry_dsn = { "type" = "string", "default" = "", category = "api_keys", name = "Hubs Sentry DSN", description = "Sentry DSN to use for HUbs error reporting." }
+general.sentry_dsn = { "type" = "string", "default" = "", category = "api_keys", name = "Hubs Sentry DSN", description = "Sentry DSN to use for Hubs error reporting." }
 general.ga_tracking_id = { "type" = "string", "default" = "", category = "api_keys", name = "Hubs Google Analytics Tracking ID", description = "Google Analytics ID to use for instrumenting page hits." }
 deploy.type = { "type" = "string", "default" = "none" }
 deploy.region = { "type" = "string", "default" = "" }
