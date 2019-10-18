@@ -41,7 +41,7 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
-    await tryWithLock(async () => {
+    await tryWithLock(schemas, cloudFormation, async () => {
       await parameterStore.write(`ita/${stackName}/${req.params.service}`, req.body);
       await flush(req.params.service, stackName, cloudFormation, parameterStore, habitat, schemas);
     });
