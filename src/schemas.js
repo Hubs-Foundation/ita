@@ -5,7 +5,7 @@ const path = require("path");
 
 // A TOML object is considered to be a config descriptor if it at least has
 // a "type" key and has no keys which aren't valid descriptor metadata.
-const DESCRIPTOR_FIELDS = ["default", "type", "of", "unmanaged"];
+const DESCRIPTOR_FIELDS = ["default", "type", "of", "unmanaged", "category", "name", "description"];
 function isDescriptor(obj) {
   if (typeof obj !== "object") return false;
   if (!("type" in obj)) return false;

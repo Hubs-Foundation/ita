@@ -31,15 +31,6 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     return res.json(configs);
   }));
 
-  // reads the latest configs from the Habitat ring
-  router.get('/configs/:service/hab', forwardExceptions(async (req, res) => {
-    if (!(req.params.service in schemas)) {
-      return res.status(400).json({ error: "Invalid service name." });
-    }
-    const configs = await habitat.read(req.params.service, process.env.HAB_GROUP, process.env.HAB_ORG);
-    return res.json(configs);
-  }));
-
   // updates parameter store with new client-supplied values and flushes them to ring
   router.patch('/configs/:service', forwardExceptions(async (req, res) => {
     if (!(req.params.service in schemas)) {
@@ -50,7 +41,7 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
-    await tryWithLock(async () => {
+    await tryWithLock(schemas, cloudFormation, async () => {
       await parameterStore.write(`ita/${stackName}/${req.params.service}`, req.body);
       await flush(req.params.service, stackName, cloudFormation, parameterStore, habitat, schemas);
     });

@@ -1,25 +1,25 @@
 general.server_name = { "type" = "string", "default" = "Janus" }
 general.iface = { "type" = "string", "default" = "0.0.0.0" }
-general.log_to_syslog = { "type" = "string", "default" = "true" }
-general.debug_level = { "type" = "number", "default" = 4 }
+general.log_to_syslog = { "type" = "string", "default" = "true", category = "advanced" }
+general.debug_level = { "type" = "number", "default" = 4, category = "advanced" }
 general.token_auth = { "type" = "string", "default" = "no" }
-general.session_timeout = { "type" = "number", "default" = 60 }
+general.session_timeout = { "type" = "number", "default" = 60, category = "advanced" }
 general.admin_secret = { "type" = "string", "default" = "secret" }
 general.api_secret = { "type" = "string", "default" = "" }
-media.ipv6 = { "type" = "string", "default" = "true" }
-media.max_nack_queue = { "type" = "number", "default" = 300 }
+media.ipv6 = { "type" = "string", "default" = "true", category = "advanced" }
+media.max_nack_queue = { "type" = "number", "default" = 300, category = "advanced" }
 media.rtp_port_range = { "type" = "string", "default" = "20000-40000" }
-media.dtls_mtu = { "type" = "number", "default" = 1472 }
-media.force_bundle = { "type" = "string", "default" = "false" }
-media.force_rtcp_mux = { "type" = "string", "default" = "false" }
-media.no_media_timer = { "type" = "number", "default" = 1 }
-nat.nice_debug = { "type" = "string", "default" = "false" }
-nat.ice_lite = { "type" = "string", "default" = "false" }
-nat.ice_tcp = { "type" = "string", "default" = "false" }
-nat.ice_ignore_list = { "type" = "string", "default" = "vmnet" }
+media.dtls_mtu = { "type" = "number", "default" = 1472, category = "advanced" }
+media.force_bundle = { "type" = "string", "default" = "false", category = "advanced" }
+media.force_rtcp_mux = { "type" = "string", "default" = "false", category = "advanced" }
+media.no_media_timer = { "type" = "number", "default" = 1, category = "advanced" }
+nat.nice_debug = { "type" = "string", "default" = "false", category = "advanced" }
+nat.ice_lite = { "type" = "string", "default" = "false", category = "advanced" }
+nat.ice_tcp = { "type" = "string", "default" = "false", category = "advanced" }
+nat.ice_ignore_list = { "type" = "string", "default" = "vmnet", category = "advanced" }
 nat.nat_1_1_mapping = { "type" = "string", "default" = "vmnet", "unmanaged" = true }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
-plugins.sfu.max_room_size = { "type" = "number", "default" = 64 }
+plugins.sfu.max_room_size = { "type" = "number", "default" = 64, category = "advanced" }
 transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_pfunix.so"] }
 transports.pfunix.enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.admin_enabled = { "type" = "string", "default" = "no" }
