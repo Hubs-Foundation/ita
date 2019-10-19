@@ -35,8 +35,8 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat, ssh
   router.get('/admin-info', forwardExceptions(async (req, res) => {
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
-      external_cors_proxy_domain: `${process.env.STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
-      external_storage_domain: `${process.env.STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
+      external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
+      external_storage_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
       server_domain: process.env.SERVER_DOMAIN
     });
   }));
