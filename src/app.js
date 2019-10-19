@@ -19,6 +19,12 @@ async function createApp() {
     fs.unlinkSync(process.env.READY_FILE);
   }
 
+  let sshTotpQrData;
+
+  if (process.env.SSH_TOTP_QR_FILE) {
+    sshTotpQrData = fs.readFileSync(process.env.SSH_TOTP_QR_FILE).toString();
+  }
+
   // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
   const credentialProvider = new AWS.CredentialProviderChain([
     () => new AWS.EnvironmentCredentials('AWS'),
@@ -52,7 +58,7 @@ async function createApp() {
   const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg.trimEnd()) } });
   app.use(logger);
   app.use(bodyParser.json({ strict: true }));
-  app.use('/', api.create(schemas, stackName, cloudFormation, parameterStore, habitat));
+  app.use('/', api.create(schemas, stackName, cloudFormation, parameterStore, habitat, sshTotpQrData));
   app.use(function (req, res, _next) {
     res.status(404).send({ error: "No such endpoint." });
   });

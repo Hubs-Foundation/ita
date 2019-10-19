@@ -6,9 +6,12 @@ req_log_format = ":date[iso] :method :url :status"
 
 [aws]
 region = "us-west-1"
+stack_name = ""
 stack_id = ""
+account_id = ""
 ps_reqs_per_sec = 3
 ps_retry_delay_ms = 5000
+server_domain = ""
 
 [hab]
 org = ""

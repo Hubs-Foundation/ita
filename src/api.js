@@ -7,7 +7,7 @@ function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
 }
 
-function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
+function create(schemas, stackName, cloudFormation, parameterStore, habitat, sshTotpQrData) {
   const router = express.Router();
 
   // emits schemas for one or all services
@@ -29,6 +29,16 @@ function create(schemas, stackName, cloudFormation, parameterStore, habitat) {
     }
     const configs = await parameterStore.read(`ita/${stackName}/${req.params.service}`);
     return res.json(configs);
+  }));
+
+  // reads additional admin-only information about the stack
+  router.get('/admin-info', forwardExceptions(async (req, res) => {
+    return res.json({
+      ssh_totp_qr_data: sshTotpQrData,
+      external_cors_proxy_domain: `${process.env.STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
+      external_storage_domain: `${process.env.STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
+      server_domain: process.env.SERVER_DOMAIN
+    });
   }));
 
   // updates parameter store with new client-supplied values and flushes them to ring
