@@ -76,14 +76,14 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
     await new Promise(r => rmdir(tempDir, r));
 
     // Stop hab package from deploying.
-    /*await tryWithLock(schemas, cloudFormation, async () => {
+    await tryWithLock(schemas, cloudFormation, async () => {
       const newConfigs = {
         deploy: { type: "none" }
       };
 
       await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
       await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
-    });*/
+    });
 
     return res.json({ result: "ok" });
   }));
