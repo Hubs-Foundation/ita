@@ -39,6 +39,7 @@ async function createApp() {
   };
 
   const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
+  const s3 = new AWS.S3(sharedOptions);
   const stackName = await cloudFormation.getName(process.env.AWS_STACK_ID);
 
   const parameterStore = new ParameterStore({
@@ -58,7 +59,7 @@ async function createApp() {
   const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg.trimEnd()) } });
   app.use(logger);
   app.use(bodyParser.json({ strict: true }));
-  app.use('/', api.create(schemas, stackName, cloudFormation, parameterStore, habitat, sshTotpQrData));
+  app.use('/', api.create(schemas, stackName, s3, cloudFormation, parameterStore, habitat, sshTotpQrData));
   app.use(function (req, res, _next) {
     res.status(404).send({ error: "No such endpoint." });
   });
