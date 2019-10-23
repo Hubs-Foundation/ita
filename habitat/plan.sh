@@ -7,6 +7,7 @@ pkg_description="A service for doing Hubs configuration management."
 pkg_deps=(
   core/coreutils
   core/node/12.9.0
+  core/aws-cli
 )
 
 pkg_build_deps=(

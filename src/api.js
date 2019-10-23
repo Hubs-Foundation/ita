@@ -5,6 +5,10 @@ const flush = require("./flush");
 const { getDefaults } = require("./schemas");
 const { getTimeString } = require("./utils");
 const merge = require('lodash.merge');
+const { tmpdir } = require('os');
+const { unlinkSync, mkdirSync, createWriteStream } = require('fs');
+const tar = require('tar');
+const rmdir = require('rimraf');
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
@@ -13,24 +17,58 @@ function forwardExceptions(routeFn) {
 function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat, sshTotpQrData) {
   const router = express.Router();
 
-  router.get('/deploy/:service/upload_url', forwardExceptions(async (req, res) => {
+  router.post('/deploy/:service', forwardExceptions(async (req, res) => {
     const service = req.params.service;
     if (service !== "hubs" && service !== "spoke") {
       return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
     }
   
     const schema = schemas[service];
-    const version = getTimeString();
+    const { version } = req.body;
     const filename = `${service}-build-${version}.tar.gz`;
     const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+    const tempDir = `${process.env.TEMP || tmpdir()}/ita-deploy-${getTimeString()}`;
+    await new Promise(r => rmdir(tempDir, r));
+    mkdirSync(tempDir);
 
-    if (stackConfigs.deploy.type !== 's3') {
-      return res.status(400).json({ error: `${service} is not configured for S3.` });
+    const outStream = createWriteStream(`${tempDir}/${filename}`);
+
+    await new Promise((resolve, rej) => {
+      const inStream = s3.getObject({ Bucket: stackConfigs.deploy.target, Key: `builds/${filename}` }).createReadStream();
+      inStream.on('error', rej);
+      inStream.pipe(outStream).on('error', rej).on('close', resolve);
+    });
+
+    await tar.x({ file: `${tempDir}/${filename}`, gzip: true, C: tempDir });
+    unlinkSync(`${tempDir}/${filename}`);
+    await new Promise(r => rmdir(tempDir, r));
+
+    await tryWithLock(schemas, cloudFormation, async () => {
+      // Stop hab package from deploying.
+      const newConfigs = {
+        deploy: { type: "none" }
+      };
+
+      await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
+      await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
+    });
+
+    return res.json({ result: "ok" });
+  }));
+
+  router.get('/deploy/:service/upload_url', forwardExceptions(async (req, res) => {
+    const service = req.params.service;
+    if (service !== "hubs" && service !== "spoke") {
+      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
     }
+    const version = getTimeString();
+    const filename = `${service}-build-${version}.tar.gz`;
+    const schema = schemas[service];
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
 
     const url = s3.getSignedUrl("putObject", {
       Bucket: stackConfigs.deploy.target,
-      Expires: 30,
+      Expires: 1800,
       Key: `builds/${filename}`
     });
 
