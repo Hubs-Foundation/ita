@@ -35,6 +35,7 @@ async function createApp() {
   const sharedOptions = {
     credentialProvider,
     region: process.env.AWS_REGION,
+    signatureVersion: "v4"
     // logger: { write: msg => debug(msg.trimEnd()) }
   };
 

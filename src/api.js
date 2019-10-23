@@ -5,7 +5,6 @@ const flush = require("./flush");
 const { getDefaults } = require("./schemas");
 const { getTimeString } = require("./utils");
 const merge = require('lodash.merge');
-const MAX_UPLOADED_BUILD_SIZE = 1024 * 1024 * 256;
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
@@ -29,23 +28,13 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
       return res.status(400).json({ error: `${service} is not configured for S3.` });
     }
 
-    const s3Params = {
+    const url = s3.getSignedUrl("putObject", {
       Bucket: stackConfigs.deploy.target,
       Expires: 30,
-      Fields: {
-        key: `builds/${filename}`
-      },
-      Conditions: [[ "content-length-range", 0, MAX_UPLOADED_BUILD_SIZE]]
-    };
-
-    const data = await new Promise((res, rej) => {
-      s3.createPresignedPost(s3Params, (err, data) => {
-        if (err) rej(err);
-        res(data);
-      });
+      Key: `builds/${filename}`
     });
 
-    return res.json({ type: "s3", data, version });
+    return res.json({ type: "s3", url, version });
   }));
 
   // emits schemas for one or all services
