@@ -9,6 +9,7 @@ const { tmpdir } = require('os');
 const { unlinkSync, mkdirSync, createWriteStream } = require('fs');
 const tar = require('tar');
 const rmdir = require('rimraf');
+const { exec } = require("child_process");
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
@@ -27,30 +28,97 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
     const { version } = req.body;
     const filename = `${service}-build-${version}.tar.gz`;
     const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+
+    // Create temp directory
     const tempDir = `${process.env.TEMP || tmpdir()}/ita-deploy-${getTimeString()}`;
     await new Promise(r => rmdir(tempDir, r));
     mkdirSync(tempDir);
 
+    // Read build tarball into temp directory
     const outStream = createWriteStream(`${tempDir}/${filename}`);
+    const bucket = stackConfigs.deploy.target;
 
     await new Promise((resolve, rej) => {
-      const inStream = s3.getObject({ Bucket: stackConfigs.deploy.target, Key: `builds/${filename}` }).createReadStream();
+      const inStream = s3.getObject({ Bucket: bucket, Key: `builds/${filename}` }).createReadStream();
       inStream.on('error', rej);
       inStream.pipe(outStream).on('error', rej).on('close', resolve);
     });
 
+    // Extract build and remove tarball
     await tar.x({ file: `${tempDir}/${filename}`, gzip: true, C: tempDir });
     unlinkSync(`${tempDir}/${filename}`);
+
+    // Push non-wasm assets
+    await new Promise((res, rej) => {
+      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*.html" --exclude "*.wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
+        if (err) rej(err);
+        res();
+      })
+    });
+
+    // Push wasm assets
+    await new Promise((res, rej) => {
+      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*" --include "*.wasm" --content-type "application/wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
+        if (err) rej(err);
+        res();
+      })
+    });
+
+    // Push pages
+    await new Promise((res, rej) => {
+      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "no-cache" --delete --exclude "assets/*" --exclude "_/*" "${tempDir}" "s3://${bucket}/${service}/pages/latest"`, {}, err => {
+        if (err) rej(err);
+        res();
+      })
+    });
+
+    // Cleanup
     await new Promise(r => rmdir(tempDir, r));
 
-    await tryWithLock(schemas, cloudFormation, async () => {
-      // Stop hab package from deploying.
+    // Stop hab package from deploying.
+    /*await tryWithLock(schemas, cloudFormation, async () => {
       const newConfigs = {
         deploy: { type: "none" }
       };
 
       await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
       await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
+    });*/
+
+    return res.json({ result: "ok" });
+  }));
+
+  router.post('/undeploy/:service', forwardExceptions(async (req, res) => {
+    const service = req.params.service;
+    if (service !== "hubs" && service !== "spoke") {
+      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
+    }
+  
+    // Re-enable hab package to deploying.
+    await tryWithLock(schemas, cloudFormation, async () => {
+      const newConfigs = {
+        deploy: { type: "s3" }
+      };
+
+      await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
+      await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
+    });
+
+    // Restart package, which will flush it
+    await new Promise((res, rej) => {
+      exec(`${process.env.HAB_COMMAND} svc stop mozillareality/${service}`, {}, err => {
+        if (err) rej(err);
+        res();
+      })
+    });
+
+    await new Promise(r => setTimeout(r, 5000));
+
+    await new Promise((res, rej) => {
+      exec(`${process.env.HAB_COMMAND} svc start mozillareality/${service}`, {}, err => {
+        if (err) rej(err);
+        res();
+      })
     });
 
     return res.json({ result: "ok" });
