@@ -39,7 +39,7 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
     const bucket = stackConfigs.deploy.target;
 
     await new Promise((resolve, rej) => {
-      const inStream = s3.getObject({ Bucket: bucket, Key: `builds/${filename}` }).createReadStream();
+      const inStream = s3.getObject({ Bucket: bucket, Key: `${service}/builds/${filename}` }).createReadStream();
       inStream.on('error', rej);
       inStream.pipe(outStream).on('error', rej).on('close', resolve);
     });
@@ -137,7 +137,7 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
     const url = s3.getSignedUrl("putObject", {
       Bucket: stackConfigs.deploy.target,
       Expires: 1800,
-      Key: `builds/${filename}`
+      Key: `${service}/builds/${filename}`
     });
 
     return res.json({ type: "s3", url, version });
