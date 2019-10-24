@@ -82,6 +82,7 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
       };
 
       await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
+      await new Promise(r => setTimeout(r, 5000));
       await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
     });
 
@@ -101,6 +102,7 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
       };
 
       await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
+      await new Promise(r => setTimeout(r, 5000));
       await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
     });
 
