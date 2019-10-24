@@ -18,7 +18,7 @@ export AWS_ACCOUNT_ID="{{ cfg.aws.account_id }}"
 export SERVER_DOMAIN="{{ cfg.aws.server_domain }}"
 export AWS_PS_REQS_PER_SEC="{{ cfg.aws.ps_reqs_per_sec }}"
 export AWS_PS_RETRY_DELAY_MS="{{ cfg.aws.ps_retry_delay_ms }}"
-export AWS_CLI="{{ pkgPathFor "core/aws-cli" }}/aws"
+export AWS_CLI="{{ pkgPathFor "core/aws-cli" }}/bin/aws"
 
 export HAB_GROUP="{{ cfg.hab.group }}"
 export HAB_ORG="{{ cfg.hab.org }}"
