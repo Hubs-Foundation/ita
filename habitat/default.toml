@@ -6,6 +6,7 @@ req_log_format = ":date[iso] :method :url :status"
 
 [aws]
 region = "us-west-1"
+ses_region = "us-east-1"
 stack_name = ""
 stack_id = ""
 account_id = ""

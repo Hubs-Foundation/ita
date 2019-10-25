@@ -10,12 +10,13 @@ const { unlinkSync, mkdirSync, createWriteStream } = require('fs');
 const tar = require('tar');
 const rmdir = require('rimraf');
 const { exec } = require("child_process");
+const util = require("util");
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
 }
 
-function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat, sshTotpQrData) {
+function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, habitat, sshTotpQrData) {
   const router = express.Router();
 
   router.post('/deploy/:service', forwardExceptions(async (req, res) => {
@@ -184,8 +185,12 @@ function create(schemas, stackName, s3, cloudFormation, parameterStore, habitat,
 
   // reads additional admin-only information about the stack
   router.get('/admin-info', forwardExceptions(async (req, res) => {
+    const getSendQuota = util.promisify(ses.getSendQuota).bind(ses);
+    const { Max24HourSend } = await getSendQuota({});
+
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
+      ses_max_24_hour_send: Max24HourSend,
       external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
       external_storage_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
       server_domain: process.env.SERVER_DOMAIN
