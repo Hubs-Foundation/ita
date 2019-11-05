@@ -43,6 +43,12 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
   const now = Date.now();
   const schema = schemas[service];
   const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+
+  if (!stackConfigs || stackConfigs.length === 0) {
+    debug("Stack outputs are unavailable. Try again later.");
+    return;
+  }
+
   const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
   const defaultConfigs = getDefaults(schema);
   const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
