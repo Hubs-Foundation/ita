@@ -44,7 +44,7 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
   const schema = schemas[service];
   const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
 
-  if (!stackConfigs || stackConfigs.length === 0) {
+  if (!stackConfigs || Object.keys(stackConfigs).length === 0) {
     debug("Stack outputs are unavailable. Try again later.");
     return;
   }
