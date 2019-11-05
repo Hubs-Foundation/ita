@@ -23,6 +23,10 @@ class CloudFormation {
     if (res.Stacks.length === 0) {
       throw new Error(`Stack ${stack} not found.`);
     }
+    if (res.Stacks[0].Outputs.length === 0) {
+      throw new Error(`Stack outputs unavailable.`);
+    }
+
     const data = {};
     for (const output of res.Stacks[0].Outputs) {
       // The targets are encoded in the stack output descriptions, contained in []'s'

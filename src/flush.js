@@ -42,9 +42,11 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
-  const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+  let stackConfigs;
 
-  if (!stackConfigs || Object.keys(stackConfigs).length === 0) {
+  try {
+    stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+  } catch (e) {
     debug("Stack outputs are unavailable. Try again later.");
     return;
   }
