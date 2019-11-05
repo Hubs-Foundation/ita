@@ -187,10 +187,13 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
   router.get('/admin-info', forwardExceptions(async (req, res) => {
     const getSendQuota = util.promisify(ses.getSendQuota).bind(ses);
     const { Max24HourSend } = await getSendQuota({});
+    const retConfigs = await parameterStore.read(`ita/${stackName}/reticulum`) || {};
+    const isUsing3rdPartyEmail = !!(retConfigs && retConfigs.email && retConfigs.email.server);
 
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
       ses_max_24_hour_send: Max24HourSend,
+      using_ses: !isUsing3rdPartyEmail,
       external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
       external_storage_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
       server_domain: process.env.SERVER_DOMAIN
