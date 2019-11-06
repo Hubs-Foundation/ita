@@ -195,7 +195,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
       ses_max_24_hour_send: Max24HourSend,
       using_ses: !isUsing3rdPartyEmail,
       external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
-      external_storage_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-storage.com`,
+      external_assets_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-assets.com`,
       server_domain: process.env.SERVER_DOMAIN
     });
   }));
