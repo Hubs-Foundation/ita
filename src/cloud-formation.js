@@ -17,6 +17,18 @@ class CloudFormation {
     return res.Stacks[0].StackName;
   }
 
+  async getLastUpdatedIfComplete(stack) {
+    const res = await this.describeStacks({ StackName: stack });
+
+    const stackStatus = res.Stacks[0].StackStatus;
+
+    if (stackStatus.endsWith("_COMPLETE")) {
+      return res.Stacks[0].LastUpdatedTime;
+    } else {
+      return null;
+    }
+  }
+
   async read(stack, service, schema) {
     const setters = [];
     const res = await this.describeStacks({ StackName: stack });

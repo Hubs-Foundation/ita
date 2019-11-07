@@ -70,34 +70,43 @@ async function createApp() {
     res.status(500).json({ error: "Internal error. See logs for details." });
   });
 
-  const flushAllServices = async () => {
+  let stackLastUpdated = null;
+
+  const flushAllServicesOnStackUpdate = async () => {
     const services = Object.keys(schemas);
     let msg = `Auto-Flush: Flush already underway.`;
 
-    await tryWithLock(schemas, cloudFormation, async () => {
-      for (const srv of services) {
-        if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
-        if (!await habitat.has(srv, process.env.HAB_GROUP, process.env.HAB_ORG)) {
-          debug(`${srv}.${process.env.HAB_GROUP} not running, skipping.`);
-          continue;
-        }
+    const newLastUpdatedTime = await cloudFormation.getLastUpdatedIfComplete(stackName);
+    if (!newLastUpdatedTime) return;
 
-        try {
-          await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
-        } catch (e) {
-          debug(`Auto-flush of ${srv} failed.`);
-          debug(e);
-        }
-      }
-      msg = `Auto-Flush done. Services up-to-date: ${services.join(", ")}`;
-    });
+    if (!stackLastUpdated || stackLastUpdated.getTime() !== newLastUpdatedTime.getTime()) {
+      await tryWithLock(schemas, cloudFormation, async () => {
+        for (const srv of services) {
+          if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
+          if (!await habitat.has(srv, process.env.HAB_GROUP, process.env.HAB_ORG)) {
+            debug(`${srv}.${process.env.HAB_GROUP} not running, skipping.`);
+            continue;
+          }
 
-    debug(msg);
+          try {
+            await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
+          } catch (e) {
+            debug(`Auto-flush of ${srv} failed.`);
+            debug(e);
+          }
+        }
+        msg = `Stack update detected at ${newLastUpdatedTime}. Flush done. Services up-to-date: ${services.join(", ")}`;
+
+        stackLastUpdated = newLastUpdatedTime;
+      });
+
+      debug(msg);
+    }
   };
 
-  await flushAllServices();
+  await flushAllServicesOnStackUpdate();
   // Flush all services regularly
-  setInterval(flushAllServices, AUTO_FLUSH_DURATION_MS);
+  setInterval(flushAllServicesOnStackUpdate, AUTO_FLUSH_DURATION_MS);
 
   // Touch ready file
   if (process.env.READY_FILE) {
