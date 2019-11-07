@@ -196,7 +196,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
       using_ses: !isUsing3rdPartyEmail,
       external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
       external_assets_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-assets.com`,
-      internal_assets_domain: `${process.env.AWS_STACK_NAME}-assets.com`,
+      internal_assets_domain: `${process.env.AWS_STACK_NAME}-assets.${process.env.SERVER_DOMAIN}.com`,
       server_domain: process.env.SERVER_DOMAIN
     });
   }));
