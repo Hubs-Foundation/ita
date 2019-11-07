@@ -1,6 +1,7 @@
 const diff = require('deep-diff').diff;
 const merge = require('lodash.merge');
 const debug = require('debug')('ita:flush');
+const debugDiffs = require('debug')('ita-secrets:flush');
 const { getDefaults, getEmptyValue, isUnmanaged, isDescriptor } = require("./schemas");
 
 function getVersion(ts) {
@@ -77,6 +78,7 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
 
   // Strip out any un-managed configs before flushing since the above code may have read them
   // from Habitat.
+  deleteUnmanagedConfigs(schema, oldConfigs);
   deleteUnmanagedConfigs(schema, newConfigs);
 
   const differences = diff(oldConfigs, newConfigs);
@@ -85,6 +87,7 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
     for (const d of differences) {
       diffPaths.add(d.path.join("/"));
     }
+    debugDiffs(differences);
     debug(`Updating Habitat configs: ${Array.prototype.join(diffPaths, ', ')}`);
 
     await habitat.write(service, process.env.HAB_GROUP, process.env.HAB_ORG, newConfigs, getVersion(now));

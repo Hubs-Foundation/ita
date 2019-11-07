@@ -1,6 +1,6 @@
 general.host = { "type" = "string", "default" = "localhost" }
 general.port = { "type" = "number", "default" = 3000 }
-general.debug = { "type" = "string", "default" = "ita*,configtool*" }
+general.debug = { "type" = "string", "default" = "ita:*,ita,configtool:*,configtool" }
 general.req_log_format = { "type" = "string", "default" = ":date[iso] :method :url :status" }
 aws.region = { "type" = "string", "default" = "us-west-1" }
 aws.stack_id = { "type" = "string", "default" = "" }
