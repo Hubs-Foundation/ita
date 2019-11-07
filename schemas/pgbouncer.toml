@@ -1,5 +1,6 @@
+pgbouncer.db = { "type" = "string" }
 pgbouncer.listen_addr = { "type" = "string", "default" = "127.0.0.1" }
-pgbouncer.listen_port = { "type" = "number", "default" = 6432 }
+pgbouncer.listen_port = { "type" = "number", "default" = 5432 }
 pgbouncer.default_pool_size = { "type" = "number", "default" = 16 }
 pgbouncer.min_pool_size = { "type" = "number", "default" = 0 }
 pgbouncer.server_idle_timeout = { "type" = "number", "default" = 300 }

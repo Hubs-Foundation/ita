@@ -102,7 +102,7 @@ class CloudFormation {
       const secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
 
       if (xform === "inject-aws-secret") {
-        return value.replace(`{${secretId}}`, secretValue);
+        return value.split(`{${secretId}}`).join(secretValue);
       } else {
         return secretValue;
       }
