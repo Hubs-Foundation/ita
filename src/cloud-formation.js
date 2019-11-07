@@ -17,6 +17,18 @@ class CloudFormation {
     return res.Stacks[0].StackName;
   }
 
+  async getLastUpdatedIfComplete(stack) {
+    const res = await this.describeStacks({ StackName: stack });
+
+    const stackStatus = res.Stacks[0].StackStatus;
+
+    if (stackStatus.endsWith("_COMPLETE")) {
+      return res.Stacks[0].LastUpdatedTime || res.Stacks[0].CreationTime;
+    } else {
+      return null;
+    }
+  }
+
   async read(stack, service, schema) {
     const setters = [];
     const res = await this.describeStacks({ StackName: stack });
@@ -102,7 +114,7 @@ class CloudFormation {
       const secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
 
       if (xform === "inject-aws-secret") {
-        return value.replace(`{${secretId}}`, secretValue);
+        return value.split(`{${secretId}}`).join(secretValue);
       } else {
         return secretValue;
       }
