@@ -26,6 +26,7 @@ db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "polycosm_production" }
 db.template = { "type" = "string", "default" = "template0" }
 db.pool_size = { "type" = "number", "default" = 16 }
+db.idle_interval = { "type" = "number", "default" = 3000000000 }
 session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
 session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
