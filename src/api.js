@@ -194,9 +194,8 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
       ssh_totp_qr_data: sshTotpQrData,
       ses_max_24_hour_send: Max24HourSend,
       using_ses: !isUsing3rdPartyEmail,
-      external_cors_proxy_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-cors-proxy.com`,
-      external_assets_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-assets.com`,
-      internal_assets_domain: `${process.env.AWS_STACK_NAME}-assets.${process.env.SERVER_DOMAIN}.com`,
+      worker_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`,
+      assets_domain: process.env.ASSETS_DOMAIN,
       server_domain: process.env.SERVER_DOMAIN
     });
   }));
