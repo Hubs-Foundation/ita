@@ -1,0 +1,3 @@
+aws.region = { "type" = "string" }
+aws.lambda_bucket = { "type" = "string" }
+aws.stack_name = { "type" = "string" }
