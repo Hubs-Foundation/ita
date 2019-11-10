@@ -28,7 +28,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     const schema = schemas[service];
     const { version } = req.body;
     const filename = `${service}-build-${version}.tar.gz`;
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
 
     // Create temp directory
     const tempDir = `${process.env.TEMP || tmpdir()}/ita-deploy-${getTimeString()}`;
@@ -135,7 +135,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     const version = getTimeString();
     const filename = `${service}-build-${version}.tar.gz`;
     const schema = schemas[service];
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
 
     const url = s3.getSignedUrl("putObject", {
       Bucket: stackConfigs.deploy.target,
@@ -176,7 +176,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     }
 
     const schema = schemas[service];
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema);
+    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
     const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
     const defaultConfigs = getDefaults(schema);
     const configs = merge(defaultConfigs, stackConfigs, parameterStoreConfigs);

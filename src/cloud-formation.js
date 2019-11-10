@@ -29,7 +29,7 @@ class CloudFormation {
     }
   }
 
-  async read(stack, service, schema) {
+  async read(stack, service, schema, parameterStore) {
     const setters = [];
     const res = await this.describeStacks({ StackName: stack });
     if (res.Stacks.length === 0) {
@@ -38,6 +38,8 @@ class CloudFormation {
     if (res.Stacks[0].Outputs.length === 0) {
       throw new Error(`Stack outputs unavailable.`);
     }
+
+    const keymasterSecrets = parameterStore ? await parameterStore.read(`keymaster/${stack}`) || {} : {};
 
     const data = {};
     for (const output of res.Stacks[0].Outputs) {
@@ -86,7 +88,7 @@ class CloudFormation {
           const dataTarget = t.subSection ? data[t.section][t.subSection] : data[t.section];
 
           if (t.xform) {
-            this._performOutputXform(value, t.xform, t.args).then(value => {
+            this._performOutputXform(value, t.xform, t.args, keymasterSecrets).then(value => {
               dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
               resolve();
             })
@@ -102,18 +104,24 @@ class CloudFormation {
     return data;
   }
 
-  async _performOutputXform(value, xform, args) {
-    if (xform === "read-aws-secret" || xform === "inject-aws-secret") {
+  async _performOutputXform(value, xform, args, keymasterSecrets) {
+    if (xform === "read-aws-secret" || xform === "inject-aws-secret" || xform === "read-keymaster-secret" || xform === "inject-keymaster-secret") {
       let secretId = value;
 
-      if (xform === "inject-aws-secret") {
+      if (xform.startsWith("inject-")) {
         secretId = value.match(/{(.*)}/)[1];
       }
 
-      const secret = await this.getSecretValue({ SecretId: secretId });
-      const secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
+      let secretValue;
 
-      if (xform === "inject-aws-secret") {
+      if (xform.indexOf("keymaster") >= 0) {
+        secretValue = keymasterSecrets[secretId];
+      } else {
+        const secret = await this.getSecretValue({ SecretId: secretId });
+        secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
+      }
+
+      if (xform.startsWith("inject-")) {
         return value.split(`{${secretId}}`).join(secretValue);
       } else {
         return secretValue;
