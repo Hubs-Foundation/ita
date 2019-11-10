@@ -39,7 +39,8 @@ class CloudFormation {
       throw new Error(`Stack outputs unavailable.`);
     }
 
-    const keymasterSecrets = parameterStore ? await parameterStore.read(`keymaster/${stack}`) || {} : {};
+    const stackName = res.Stacks[0].StackName;
+    const keymasterSecrets = parameterStore ? await parameterStore.read(`keymaster/${stackName}`) || {} : {};
 
     const data = {};
     for (const output of res.Stacks[0].Outputs) {
