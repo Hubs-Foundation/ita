@@ -22,7 +22,7 @@ class CloudFormation {
 
     const stackStatus = res.Stacks[0].StackStatus;
 
-    if (stackStatus.endsWith("_COMPLETE")) {
+    if (stackStatus.endsWith("_COMPLETE") || stackStatus.endsWith("_FAILED")) {
       return res.Stacks[0].LastUpdatedTime || res.Stacks[0].CreationTime;
     } else {
       return null;
