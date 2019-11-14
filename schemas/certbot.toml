@@ -1,4 +1,4 @@
-general.plugin = { "type" = "string", "default" = "none" }
+general.plugin = { "type" = "string", "default" = "dns-route53" }
 general.server = { "type" = "string", "default" = "https://acme-v02.api.letsencrypt.org/directory" }
 general.renewal_interval = { "type" = "number", "default" = 86400 }
 general.admin_email = { "type" = "string", "default" = "noreply@localhost" }
