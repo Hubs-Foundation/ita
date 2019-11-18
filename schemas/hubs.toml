@@ -1,6 +1,7 @@
 general.reticulum_server = { "type" = "string" }
 general.cors_proxy_server = { "type" = "string", default = "" }
 general.base_assets_path = { "type" = "string", default = "/" }
+general.shortlink_domain = { "type" = "string", default = "" }
 general.thumbnail_server = { "type" = "string" }
 general.non_cors_proxy_domains = { "type" = "string" }
 general.postgrest_server = { "type" = "string" }
