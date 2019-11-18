@@ -62,3 +62,4 @@ resolver.google_poly_api_key = { "type" = "string", "default" = "", category = "
 resolver.tenor_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Tenor API Key", description = "API key to use for Tenor GIF search." }
 resolver.bing_search_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Bing Search API Key", description = "API key to use for Bing Image and Video search." }
 resolver.twitch_client_id = { "type" = "string", "default" = "", category = "api_keys", name = "Twitch Client ID", description = "Client ID to use for Twitch search." }
+accounts.admin_email = { "type" = "string", default = ""  }
