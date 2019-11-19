@@ -57,7 +57,7 @@ email.password = { "type" = "string", "default" = "", category = "email", name =
 email.from = { "type" = "string", "default" = "", category = "email", name = "SMTP From:", description = "Custom From: address for sending email." }
 email.server = { "type" = "string", "default" = "", category = "email", name = "SMTP Server", description = "Custom SMTP server for email." }
 email.port = { "type" = "number", "default" = 587, category = "email", name = "SMTP Port", description = "Custom SMTP port for email." }
-resolver.ytdl_host = { "type" = "string", "default" = "" }
+resolver.ytdl_host = { "type" = "string", "default" = "http://localhost:8080" }
 resolver.sketchfab_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Sketchfab API Key", description = "API key to use for Sketchfab model search." }
 resolver.google_poly_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Google Poly API Key", description = "API key to use for Google Poly model search." }
 resolver.tenor_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Tenor API Key", description = "API key to use for Tenor GIF search." }
