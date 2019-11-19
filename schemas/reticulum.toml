@@ -37,6 +37,7 @@ security.content_security_policy = { "type" = "string", "default" = "default-src
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
+uploads.quota_gb = { "type" = "number", "default" = 100 }
 uploads.ttl = { "type" = "number", "default" = 172800, category = "content", name = "Storage TTL (seconds)", description = "Un-pinned stored files are removed after this TTL. (Default: 172800 seconds = 2 days)" }
 pages.insecure_ssl = { "type" = "string", "default" = "false" }
 janus.admin_secret = { "type" = "string", "default" = "secret" }
