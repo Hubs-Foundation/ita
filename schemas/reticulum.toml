@@ -43,7 +43,7 @@ pages.insecure_ssl = { "type" = "string", "default" = "false" }
 janus.admin_secret = { "type" = "string", "default" = "secret" }
 janus.admin_port = { "type" = "number", "default" = 7000 }
 janus.service_name = { "type" = "string", "default" = "janus-gateway" }
-janus.janus_port = { "type" = "number", "default" = 8443 }
+janus.janus_port = { "type" = "number", "default" = 80 }
 run.hostname_dns_suffix = { "type" = "string", "default" = "" }
 web_push.public_key = { "type" = "string", "default" = "" }
 web_push.private_key = { "type" = "string", "default" = "" }
