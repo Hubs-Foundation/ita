@@ -10,6 +10,7 @@ phx.static_url_host_prefix = { "type" = "string", "default" = "" }
 phx.secondary_url_host = { "type" = "string", "default" = "" }
 phx.cors_proxy_url_host = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
+phx.allow_crawlers = { "type" = "boolean", "default" = false, category = "content", name = "Allow Web Crawlers", description = "Allowing web crawlers will cause your site to be hit regularly and be listed in search engines." }
 guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
 guardian.perms_key = { "type" = "string", "default" = "" }
 guardian.oauth_token_key = { "type" = "string", "default" = "" }
