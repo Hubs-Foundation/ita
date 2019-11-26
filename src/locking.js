@@ -15,7 +15,8 @@ async function connectToDatabase(schemas, cloudFormation) {
       user: process.env.PGUSER || itaConfigs.db.username,
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,
-      database: process.env.PGDATABASE || itaConfigs.db.database
+      database: process.env.PGDATABASE || itaConfigs.db.database,
+      port: process.env.PGPORT || itaConfigs.db.port || 5432
     };
   }
 
