@@ -25,6 +25,7 @@ async function connectToDatabase(schemas, cloudFormation) {
   return client;
 }
 
+// TODO using provider
 async function tryWithLock(schemas, cloudFormation, f) {
   let pg;
 
