@@ -9,6 +9,7 @@ const { Habitat } = require('hubs-configtool');
 const { loadSchemas } = require("./schemas");
 const { tryWithLock } = require("./locking");
 const { AWSProvider } = require("./providers/aws");
+const { LocalProvider } = require("./providers/local");
 
 const flush = require("./flush");
 const AUTO_FLUSH_DURATION_MS = 30000;
@@ -25,12 +26,13 @@ async function createApp() {
     sshTotpQrData = fs.readFileSync(process.env.SSH_TOTP_QR_FILE).toString();
   }
 
-  const provider = new AWSProvider();
-  await provider.init();
+  const provider = process.env.MODE === "local" ? new LocalProvider() : new AWSProvider();
 
   const habitat = new Habitat(process.env.HAB_COMMAND,
                               process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
                               process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
+
+  await provider.init(habitat);
 
   const schemas = loadSchemas(process.env.SCHEMAS_DIR);
 

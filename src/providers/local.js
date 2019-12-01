@@ -1,66 +1,24 @@
 const process = require('process');
-const AWS = require('aws-sdk');
-const { CloudFormation } = require("../cloud-formation");
-const { ParameterStore } = require('hubs-configtool');
 const { exec } = require("child_process");
 const util = require("util");
 const flush = require("../flush");
-const { stackOutputsToStackConfigs } = require("../utils");
 
-class AWSProvider {
+class LocalProvider {
   async init(habitat) {
     this.habitat = habitat;
-
-    // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
-    const credentialProvider = new AWS.CredentialProviderChain([
-      () => new AWS.EnvironmentCredentials('AWS'),
-      () => new AWS.SharedIniFileCredentials(),
-      () => new AWS.EC2MetadataCredentials()
-    ]);
-
-    const sharedOptions = {
-      credentialProvider,
-      region: process.env.AWS_REGION,
-      signatureVersion: "v4"
-      // logger: { write: msg => debug(msg.trimEnd()) }
-    };
-
-    this.cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
-    this.s3 = new AWS.S3(sharedOptions);
-    this.ses = new AWS.SES({ ...sharedOptions, region: process.env.AWS_SES_REGION });
-    this.stackName = await this.cloudFormation.getName(process.env.AWS_STACK_ID);
-
-    this.parameterStore = new ParameterStore({
-      credentialProvider,
-      region: process.env.AWS_REGION,
-      retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
-      // logger: { write: msg => debug(msg.trimEnd()) }
-    }, process.env.AWS_PS_REQS_PER_SEC);
+    console.log("init");
   }
 
   async getLastUpdatedIfComplete() {
-    return await this.cloudFormation.getLastUpdatedIfComplete(this.stackName);
+    return await this.habitat.getVersion("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
   }
 
   async readStackConfigs(service, schema) {
-    const stack = process.env.AWS_STACK_ID;
-
-    const res = await this.describeStacks({ StackName: stack });
-    if (res.Stacks.length === 0) {
-      throw new Error(`Stack ${stack} not found.`);
-    }
-    if (res.Stacks[0].Outputs.length === 0) {
-      throw new Error(`Stack outputs unavailable.`);
-    }
-
-    const { StackName, Outputs } = res.Stacks[0];
-    const keymasterSecrets = this.parameterStore ? await this.parameterStore.read(`keymaster/${StackName}`) || {} : {};
-
-    return await stackOutputsToStackConfigs(Outputs, service, schema, keymasterSecrets);
+    return (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).stack || {};
   }
 
   async readParameterConfigs(service) {
-    return await this.parameterStore.read(`ita/${this.stackName}/${service}`);
+    return (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {};
   }
 
   getStoredFileStream(bucket, key) {
@@ -93,10 +51,10 @@ class AWSProvider {
     });
   }
 
-  async writeAndFlushParameters(service, configs, schemas) {
+  async writeAndFlushParameters(service, configs, habitat, schemas) {
     await this.parameterStore.write(`ita/${this.stackName}/${service}`, configs);
     await new Promise(r => setTimeout(r, 5000));
-    await flush(service, this, this.habitat, schemas);
+    await flush(service, this, habitat, schemas);
   }
 
   async getUploadUrl(service, filename, schemas) {
@@ -121,4 +79,4 @@ class AWSProvider {
   }
 }
 
-module.exports = { AWSProvider };
+module.exports = { LocalProvider };

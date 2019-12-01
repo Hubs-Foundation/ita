@@ -59,7 +59,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
         deploy: { type: "none" }
       };
 
-      await provider.writeAndFlushParameters(service, newConfigs, habitat, schemas)
+      await provider.writeAndFlushParameters(service, newConfigs, schemas)
     });
 
     return res.json({ result: "ok" });
@@ -77,7 +77,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
         deploy: { type: "s3" }
       };
 
-      await provider.writeAndFlushParameters(service, newConfigs, habitat, schemas)
+      await provider.writeAndFlushParameters(service, newConfigs, schemas)
     });
 
     // Restart package, which will flush it
