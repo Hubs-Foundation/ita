@@ -3,14 +3,13 @@ const { exec } = require("child_process");
 const flush = require("../flush");
 const { stackOutputsToStackConfigs } = require("../utils");
 
-// When using the ArbortectProvider, the stack configs and user.configurable parameters are stored
+// When using the ArbortectProvider, the stack configs and user-editable parameters are stored
 // in the habitat ring, in the `polycosm-parameters` service.
 //
 // These configs are analagous to the CloudFormation stack Outputs and ParameterStore data in AWS.
 class ArbortectProvider {
   async init(habitat) {
     this.habitat = habitat;
-    console.log("init");
   }
 
   async getLastUpdatedIfComplete() {
@@ -78,6 +77,11 @@ class ArbortectProvider {
 
   async writeParameterConfigs(service, configs) {
     await this.habitat.write("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG, { params: { [service]: configs } }, Math.floor(Date.now() / 1000))
+  }
+
+  async getWorkerDomain() {
+    // TODO read from stack configs
+    return `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
   }
 }
 

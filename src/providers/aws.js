@@ -119,6 +119,10 @@ class AWSProvider {
   async writeParameterConfigs(service, configs) {
     await this.parameterStore.write(`ita/${this.stackName}/${service}`, configs);
   }
+
+  async getWorkerDomain() {
+    return `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
+  }
 }
 
 module.exports = { AWSProvider };

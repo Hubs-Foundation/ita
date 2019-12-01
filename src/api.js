@@ -152,13 +152,13 @@ function create(schemas, provider, habitat, sshTotpQrData) {
   router.get('/admin-info', forwardExceptions(async (req, res) => {
     const sendEmailQuota = await provider.getDailyEmailSendQuota();
     const retConfigs = await provider.readEditableConfigs("reticulum") || {};
-    const isUsing3rdPartyEmail = !!(retConfigs && retConfigs.email && retConfigs.email.server);
+    const isUsing3rdPartyEmail = process.env.MODE !== "aws" || !!(retConfigs && retConfigs.email && retConfigs.email.server);
 
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
       ses_max_24_hour_send: sendEmailQuota,
       using_ses: !isUsing3rdPartyEmail,
-      worker_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`,
+      worker_domain: await provider.getWorkerDomain(),
       assets_domain: process.env.ASSETS_DOMAIN,
       server_domain: process.env.SERVER_DOMAIN
     });
