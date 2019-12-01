@@ -3,6 +3,7 @@ host = "localhost"
 port = 3000
 debug = "ita:*,ita,configtool:*,configtool"
 req_log_format = ":date[iso] :method :url :status"
+provider = "aws"
 
 [aws]
 region = "us-west-1"

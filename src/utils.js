@@ -13,13 +13,13 @@ async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSec
 
   const data = {};
   for (const output of outputs) {
-    // The targets are encoded in the stack output descriptions, contained in []'s'
+    // The targets are encoded in the stack output descriptions, contained in []'s', or in Targets field
     let targets = [];
     const description = output.Description;
     const targetsMatch = description.match(/\[(.*)\]/);
 
-    if (targetsMatch) {
-      const targetSpecifiers = targetsMatch[1].split(",");
+    if (targetsMatch || output.Targets) {
+      const targetSpecifiers = output.Targets || targetsMatch[1].split(",");
       targets = targetSpecifiers.map(spec => {
         const [path, xform] = spec.split("!");
         const [service, sectionAndSub, config] = path.split("/");

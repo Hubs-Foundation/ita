@@ -6,6 +6,7 @@ set -e
 
 export HOST="{{ cfg.general.host }}"
 export PORT="{{ cfg.general.port }}"
+export PROVIDER="{{ cfg.general.provider }}"
 export DEBUG="{{ cfg.general.debug }}"
 export REQ_LOG_FORMAT="{{ cfg.general.req_log_format }}"
 export SSH_TOTP_QR_FILE="{{ pkg.svc_files_path }}/ssh-totp-qr.url"

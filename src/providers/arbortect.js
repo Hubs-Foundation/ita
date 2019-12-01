@@ -1,9 +1,13 @@
 const process = require('process');
 const { exec } = require("child_process");
-const util = require("util");
 const flush = require("../flush");
+const { stackOutputsToStackConfigs } = require("../utils");
 
-class LocalProvider {
+// When using the ArbortectProvider, the stack configs and user.configurable parameters are stored
+// in the habitat ring, in the `polycosm-parameters` service.
+//
+// These configs are analagous to the CloudFormation stack Outputs and ParameterStore data in AWS.
+class ArbortectProvider {
   async init(habitat) {
     this.habitat = habitat;
     console.log("init");
@@ -14,11 +18,12 @@ class LocalProvider {
   }
 
   async readStackConfigs(service, schema) {
-    return (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).stack || {};
+    const configs = (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).stack || {};
+    return await stackOutputsToStackConfigs(configs, service, schema);
   }
 
   async readParameterConfigs(service) {
-    return (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {};
+    return ((await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {})[service];
   }
 
   getStoredFileStream(bucket, key) {
@@ -51,10 +56,9 @@ class LocalProvider {
     });
   }
 
-  async writeAndFlushParameters(service, configs, habitat, schemas) {
-    await this.parameterStore.write(`ita/${this.stackName}/${service}`, configs);
-    await new Promise(r => setTimeout(r, 5000));
-    await flush(service, this, habitat, schemas);
+  async writeAndFlushParameters(service, configs, schemas) {
+    await this.writeParameterConfigs(service, configs)
+    await flush(service, this, this.habitat, schemas);
   }
 
   async getUploadUrl(service, filename, schemas) {
@@ -69,14 +73,12 @@ class LocalProvider {
   }
 
   async getDailyEmailSendQuota() {
-    const getSendQuota = util.promisify(this.ses.getSendQuota).bind(this.ses);
-    const { Max24HourSend } = await getSendQuota({});
-    return Max24HourSend;
+    return 1000000;
   }
 
   async writeParameterConfigs(service, configs) {
-    await this.parameterStore.write(`ita/${this.stackName}/${service}`, configs);
+    await this.habitat.write("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG, { params: { [service]: configs } }, Math.floor(Date.now() / 1000))
   }
 }
 
-module.exports = { LocalProvider };
+module.exports = { ArbortectProvider };
