@@ -15,7 +15,7 @@ async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSec
   for (const output of outputs) {
     // The targets are encoded in the stack output descriptions, contained in []'s', or in Targets field
     let targets = [];
-    const description = output.Description;
+    const description = output.Description || "";
     const targetsMatch = description.match(/\[(.*)\]/);
 
     if (targetsMatch || output.Targets) {

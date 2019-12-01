@@ -26,7 +26,7 @@ async function createApp() {
     sshTotpQrData = fs.readFileSync(process.env.SSH_TOTP_QR_FILE).toString();
   }
 
-  const provider = process.env.PROVIDER === "aws" ? new ArbortectProvider() : new AWSProvider();
+  const provider = process.env.PROVIDER === "arbortect" ? new ArbortectProvider() : new AWSProvider();
 
   const habitat = new Habitat(process.env.HAB_COMMAND,
                               process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
@@ -49,7 +49,7 @@ async function createApp() {
     res.status(500).json({ error: "Internal error. See logs for details." });
   });
 
-  let stackLastUpdated = null;
+  let stackLastUpdatedTime = null;
 
   const flushAllServicesOnStackUpdate = async () => {
     const services = Object.keys(schemas);
@@ -58,7 +58,7 @@ async function createApp() {
     const newLastUpdatedTime = await provider.getLastUpdatedIfComplete();
     if (!newLastUpdatedTime) return;
 
-    if (!stackLastUpdated || stackLastUpdated.getTime() !== newLastUpdatedTime.getTime()) {
+    if (!stackLastUpdatedTime || stackLastUpdatedTime !== newLastUpdatedTime) {
       await tryWithLock(schemas, provider, async () => {
         for (const srv of services) {
           if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
@@ -76,7 +76,7 @@ async function createApp() {
         }
         msg = `Stack update detected at ${newLastUpdatedTime}. Flush done. Services up-to-date: ${services.join(", ")}`;
 
-        stackLastUpdated = newLastUpdatedTime;
+        stackLastUpdatedTime = newLastUpdatedTime;
       });
 
       debug(msg);

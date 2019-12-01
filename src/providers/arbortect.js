@@ -13,12 +13,13 @@ class ArbortectProvider {
   }
 
   async getLastUpdatedIfComplete() {
-    return await this.habitat.getVersion("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
+    const version = await this.habitat.getVersion("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
+    return version ? version * 1000 : null;
   }
 
   async readStackConfigs(service, schema) {
     const configs = (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).stack || {};
-    return await stackOutputsToStackConfigs(configs, service, schema);
+    return await stackOutputsToStackConfigs(Object.values(configs), service, schema);
   }
 
   async readEditableConfigs(service) {

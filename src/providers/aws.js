@@ -39,7 +39,9 @@ class AWSProvider {
   }
 
   async getLastUpdatedIfComplete() {
-    return await this.cloudFormation.getLastUpdatedIfComplete(this.stackName);
+    const lastUpdated = await this.cloudFormation.getLastUpdatedIfComplete(this.stackName);
+    if (!lastUpdated) return null;
+    return lastUpdated.getTime();
   }
 
   async readStackConfigs(service, schema) {
