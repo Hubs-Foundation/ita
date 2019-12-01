@@ -128,7 +128,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await provider.readParameterConfigs(req.params.service);
+    const configs = await provider.readEditableConfigs(req.params.service);
     return res.json(configs);
   }));
 
@@ -142,16 +142,16 @@ function create(schemas, provider, habitat, sshTotpQrData) {
 
     const schema = schemas[service];
     const stackConfigs = await provider.readStackConfigs(service, schema);
-    const parameterStoreConfigs = await provider.readParameterConfigs(req.params.service);
+    const editableConfigs = await provider.readEditableConfigs(req.params.service);
     const defaultConfigs = getDefaults(schema);
-    const configs = merge(defaultConfigs, stackConfigs, parameterStoreConfigs);
+    const configs = merge(defaultConfigs, stackConfigs, editableConfigs);
     return res.json(configs);
   }));
 
   // reads additional admin-only information about the stack
   router.get('/admin-info', forwardExceptions(async (req, res) => {
     const sendEmailQuota = await provider.getDailyEmailSendQuota();
-    const retConfigs = await provider.readParameterConfigs("reticulum") || {};
+    const retConfigs = await provider.readEditableConfigs("reticulum") || {};
     const isUsing3rdPartyEmail = !!(retConfigs && retConfigs.email && retConfigs.email.server);
 
     return res.json({

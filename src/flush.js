@@ -46,13 +46,13 @@ async function flush(service, provider, habitat, schemas) {
   let stackConfigs;
 
   try {
-    stackConfigs = await provider.readStackConfigs(process.env.AWS_STACK_ID, service, schema);
+    stackConfigs = await provider.readStackConfigs(service, schema);
   } catch (e) {
     debug("Stack outputs are unavailable. Try again later.");
     return;
   }
 
-  const parameterStoreConfigs = await provider.readParameterConfigs(service) || {};
+  const editableConfigs = await provider.readEditableConfigs(service) || {};
   const defaultConfigs = getDefaults(schema);
   const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
   debug(`Computing delta for ${service}...`);
@@ -73,8 +73,8 @@ async function flush(service, provider, habitat, schemas) {
     }
   }
 
-  // Parameter store overrides stack overrides defaults overrides blank old configs.
-  const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, parameterStoreConfigs);
+  // Editable configs overrides stack overrides defaults overrides blank old configs.
+  const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, editableConfigs);
 
   // Strip out any un-managed configs before flushing since the above code may have read them
   // from Habitat.

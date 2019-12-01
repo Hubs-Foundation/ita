@@ -22,7 +22,7 @@ class ArbortectProvider {
     return await stackOutputsToStackConfigs(configs, service, schema);
   }
 
-  async readParameterConfigs(service) {
+  async readEditableConfigs(service) {
     return ((await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {})[service];
   }
 

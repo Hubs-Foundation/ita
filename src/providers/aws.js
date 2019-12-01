@@ -59,7 +59,7 @@ class AWSProvider {
     return await stackOutputsToStackConfigs(Outputs, service, schema, keymasterSecrets);
   }
 
-  async readParameterConfigs(service) {
+  async readEditableConfigs(service) {
     return await this.parameterStore.read(`ita/${this.stackName}/${service}`);
   }
 
