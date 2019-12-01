@@ -4,6 +4,7 @@ const { CloudFormation } = require("../cloud-formation");
 const { ParameterStore } = require('hubs-configtool');
 const { exec } = require("child_process");
 const util = require("util");
+const flush = require("../flush");
 
 class AWSProvider {
   async init() {
@@ -79,11 +80,7 @@ class AWSProvider {
   async writeAndFlushParameters(service, configs, habitat, schemas) {
     await this.parameterStore.write(`ita/${this.stackName}/${service}`, configs);
     await new Promise(r => setTimeout(r, 5000));
-    await this.flush(service, habitat, schemas);
-  }
-
-  async flush(/*service, habitat, schemas*/) {
-
+    await flush(service, this, habitat, schemas);
   }
 
   async getUploadUrl(service, filename, schemas) {
