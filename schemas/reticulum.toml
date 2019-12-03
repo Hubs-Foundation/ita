@@ -22,6 +22,7 @@ oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
 db.username = { "type" = "string", "default" = "postgres" }
 db.password = { "type" = "string", "default" = "postgres" }
+db.port = { "type" = "number", "default" = 5432 }
 db.postgrest_password = { "type" = "string", "default" = "admin" }
 db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "polycosm_production" }
@@ -34,6 +35,7 @@ session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
 session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
 session_lock_db.database = { "type" = "string", "default" = "polycosm_locking" }
+session_lock_db.port = { "type" = "number", "default" = 5432 }
 security.content_security_policy = { "type" = "string", "default" = "default-src 'self'", category = "advanced", name = "Content Security Policy", description = "Content-Security-Policy override, leave blank to use the generated CSP." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
