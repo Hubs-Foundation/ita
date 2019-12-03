@@ -16,7 +16,8 @@ async function connectToDatabase(schemas, provider) {
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,
       database: process.env.PGDATABASE || itaConfigs.db.database,
-      port: process.env.PGPORT || itaConfigs.db.port || 5432
+      port: process.env.PGPORT || itaConfigs.db.port || 5432,
+      ssl: true
     };
   }
 
