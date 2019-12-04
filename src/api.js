@@ -176,7 +176,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     // todo: validate against schema?
     await tryWithLock(schemas, provider, async () => {
       await provider.writeParameterConfigs(req.params.service, req.body);
-      await flush(req.params.service, habitat, schemas);
+      await flush(req.params.service, provider, habitat, schemas);
     });
 
     return res.json({ msg: `Update succeeded.` });
