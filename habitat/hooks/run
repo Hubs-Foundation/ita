@@ -33,7 +33,7 @@ export HAB_USER="{{ cfg.hab.user }}"
 
 export HAB_COMMAND="{{ cfg.hab.command }}"
 
-export HAB_CACHE_KEY_PATH=/hab/cache/keys
+export HAB_CACHE_KEY_PATH="/hab/cache/keys"
 
 # Assumes we've granted UNIX read permissions to this file to the user running the service
 export HAB_CTL_SECRET=$(cat /hab/sup/default/CTL_SECRET)
