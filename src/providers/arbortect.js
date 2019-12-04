@@ -1,6 +1,7 @@
 const process = require('process');
 const { exec } = require("child_process");
 const flush = require("../flush");
+const merge = require('lodash.merge');
 const { stackOutputsToStackConfigs } = require("../utils");
 
 // When using the ArbortectProvider, the stack configs and user-editable parameters are stored
@@ -23,7 +24,7 @@ class ArbortectProvider {
   }
 
   async readEditableConfigs(service) {
-    return ((await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {})[service];
+    return (((await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {})[service]) || {};
   }
 
   getStoredFileStream(bucket, key) {
@@ -77,7 +78,9 @@ class ArbortectProvider {
   }
 
   async writeParameterConfigs(service, configs) {
-    await this.habitat.write("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG, { params: { [service]: configs } }, Math.floor(Date.now() / 1000))
+    const currentConfig = await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
+
+    await this.habitat.write("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG, merge(currentConfig, { params: { [service]: configs } }), Math.floor(Date.now() / 1000))
   }
 
   async getWorkerDomain() {

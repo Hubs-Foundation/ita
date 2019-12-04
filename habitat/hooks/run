@@ -29,6 +29,7 @@ export HAB_HTTP_HOST="{{ cfg.hab.http_host }}"
 export HAB_HTTP_PORT="{{ cfg.hab.http_port }}"
 export HAB_SUP_HOST="{{ cfg.hab.sup_host }}"
 export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
+export HAB_USER="{{ cfg.hab.user }}"
 
 export HAB_COMMAND="{{ cfg.hab.command }}"
 

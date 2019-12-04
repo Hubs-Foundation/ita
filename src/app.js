@@ -30,7 +30,7 @@ async function createApp() {
 
   const habitat = new Habitat(process.env.HAB_COMMAND,
                               process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
-                              process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
+                              process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT, process.env.HAB_USER ? process.env.HAB_USER : null);
 
   await provider.init(habitat);
 
