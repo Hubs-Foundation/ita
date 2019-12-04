@@ -9,6 +9,8 @@ phx.static_url_host = { "type" = "string", "default" = "" }
 phx.static_url_host_prefix = { "type" = "string", "default" = "" }
 phx.secondary_url_host = { "type" = "string", "default" = "" }
 phx.cors_proxy_url_host = { "type" = "string", "default" = "" }
+phx.assets_url_host = { "type" = "string", "default" = "" }
+phx.link_url_host = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
 phx.allow_crawlers = { "type" = "boolean", "default" = false, category = "content", name = "Allow Web Crawlers", description = "Allowing web crawlers will cause your site to be hit regularly and be listed in search engines." }
 guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
@@ -67,3 +69,4 @@ resolver.tenor_api_key = { "type" = "string", "default" = "", category = "api_ke
 resolver.bing_search_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Bing Search API Key", description = "API key to use for Bing Image and Video search." }
 resolver.twitch_client_id = { "type" = "string", "default" = "", category = "api_keys", name = "Twitch Client ID", description = "Client ID to use for Twitch search." }
 accounts.admin_email = { "type" = "string", default = ""  }
+assets.assets_path = { "type" = "string", default = "" }
