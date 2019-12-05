@@ -160,7 +160,8 @@ function create(schemas, provider, habitat, sshTotpQrData) {
       using_ses: !isUsing3rdPartyEmail,
       worker_domain: await provider.getWorkerDomain(),
       assets_domain: process.env.ASSETS_DOMAIN,
-      server_domain: process.env.SERVER_DOMAIN
+      server_domain: process.env.SERVER_DOMAIN,
+      provider: process.env.PROVIDER
     });
   }));
 
