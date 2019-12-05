@@ -32,8 +32,10 @@ export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
 export HAB_USER="{{ cfg.hab.user }}"
 
 export HAB_COMMAND="{{ cfg.hab.command }}"
-
 export HAB_CACHE_KEY_PATH="/hab/cache/keys"
+
+export PARAMETER_STORE_PATH="{{ cfg.general.parameter_store_path }}"
+export STACK_CONFIGS_PATH="{{ cfg.general.stack_configs_path }}"
 
 # Assumes we've granted UNIX read permissions to this file to the user running the service
 export HAB_CTL_SECRET=$(cat /hab/sup/default/CTL_SECRET)

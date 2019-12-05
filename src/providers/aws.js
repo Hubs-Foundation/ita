@@ -30,12 +30,13 @@ class AWSProvider {
     this.ses = new AWS.SES({ ...sharedOptions, region: process.env.AWS_SES_REGION });
     this.stackName = await this.cloudFormation.getName(process.env.AWS_STACK_ID);
 
-    this.parameterStore = new ParameterStore({
+    this.parameterStore = new ParameterStore("aws", {
       credentialProvider,
       region: process.env.AWS_REGION,
       retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
+      requestsPerSecond: process.env.AWS_PS_REQS_PER_SEC
       // logger: { write: msg => debug(msg.trimEnd()) }
-    }, process.env.AWS_PS_REQS_PER_SEC);
+    });
   }
 
   async getLastUpdatedIfComplete() {
@@ -124,6 +125,10 @@ class AWSProvider {
 
   async getWorkerDomain() {
     return `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
+  }
+
+  async close() {
+
   }
 }
 

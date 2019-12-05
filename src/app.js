@@ -87,18 +87,17 @@ async function createApp() {
   // Flush all services regularly
   setInterval(flushAllServicesOnStackUpdate, AUTO_FLUSH_DURATION_MS);
 
-  // Touch ready file
-  if (process.env.READY_FILE) {
-    fs.closeSync(fs.openSync(process.env.READY_FILE, 'w'));
-
-    process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
+    if (process.env.READY_FILE) {
       if (fs.existsSync(process.env.READY_FILE)) {
         fs.unlinkSync(process.env.READY_FILE);
       }
+    }
 
-      process.exit(); // eslint-disable-line no-process-exit
-    });
-  }
+    await provider.close();
+
+    process.exit(); // eslint-disable-line no-process-exit
+  });
 
   return app;
 }

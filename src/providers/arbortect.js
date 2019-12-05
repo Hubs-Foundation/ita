@@ -1,8 +1,11 @@
 const process = require('process');
 const { exec } = require("child_process");
 const flush = require("../flush");
-const merge = require('lodash.merge');
 const { stackOutputsToStackConfigs } = require("../utils");
+const { ParameterStore } = require('hubs-configtool');
+const fs = require("fs");
+
+const stackConfigsPath = process.env.STACK_CONFIGS_PATH;
 
 // When using the ArbortectProvider, the stack configs and user-editable parameters are stored
 // in the habitat ring, in the `polycosm-parameters` service.
@@ -11,20 +14,30 @@ const { stackOutputsToStackConfigs } = require("../utils");
 class ArbortectProvider {
   async init(habitat) {
     this.habitat = habitat;
+
+    this.parameterStore = new ParameterStore("leveldb", { location: process.env.PARAMETER_STORE_PATH });
+    await this.parameterStore.init();
   }
 
   async getLastUpdatedIfComplete() {
-    const version = await this.habitat.getVersion("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
-    return version ? version * 1000 : null;
+    if (!fs.existsSync(stackConfigsPath)) {
+      return null;
+    }
+
+    return fs.statSync(stackConfigsPath).mtime.getTime() * 1000;
   }
 
   async readStackConfigs(service, schema) {
-    const configs = (await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).stack || {};
+    if (!fs.existsSync(stackConfigsPath)) {
+      return {};
+    }
+
+    const configs = JSON.parse(fs.readFileSync(stackConfigsPath));
     return await stackOutputsToStackConfigs(Object.values(configs), service, schema);
   }
 
   async readEditableConfigs(service) {
-    return (((await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG)).params || {})[service]) || {};
+    return await this.parameterStore.read(`ita/${service}`);
   }
 
   getStoredFileStream(bucket, key) {
@@ -58,7 +71,7 @@ class ArbortectProvider {
   }
 
   async writeAndFlushParameters(service, configs, schemas) {
-    await this.writeParameterConfigs(service, configs)
+    await this.parameterStore.write(`ita/${service}`, configs);
     await flush(service, this, this.habitat, schemas);
   }
 
@@ -78,14 +91,18 @@ class ArbortectProvider {
   }
 
   async writeParameterConfigs(service, configs) {
-    const currentConfig = await this.habitat.read("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG);
-
-    await this.habitat.write("polycosm-parameters", process.env.HAB_GROUP, process.env.HAB_ORG, merge(currentConfig, { params: { [service]: configs } }), Math.floor(Date.now() / 1000))
+    await this.parameterStore.write(`ita/${service}`, configs);
   }
 
   async getWorkerDomain() {
-    // TODO read from stack configs
-    return `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
+    if (!fs.existsSync(stackConfigsPath)) return "";
+    fs.readFileSync(stackConfigsPath).Outputs.find(({ Name }) => Name === "WorkerDomain").Value;
+  }
+
+  async close() {
+    if (this.db) {
+      await this.db.close();
+    }
   }
 }
 
