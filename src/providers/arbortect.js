@@ -96,7 +96,7 @@ class ArbortectProvider {
 
   async getWorkerDomain() {
     if (!fs.existsSync(stackConfigsPath)) return "";
-    fs.readFileSync(stackConfigsPath).Outputs.find(({ Name }) => Name === "WorkerDomain").Value;
+    return fs.readFileSync(stackConfigsPath).WorkerDomain.OutputValue;
   }
 
   async close() {
