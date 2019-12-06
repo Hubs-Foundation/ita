@@ -9,6 +9,8 @@ phx.static_url_host = { "type" = "string", "default" = "" }
 phx.static_url_host_prefix = { "type" = "string", "default" = "" }
 phx.secondary_url_host = { "type" = "string", "default" = "" }
 phx.cors_proxy_url_host = { "type" = "string", "default" = "" }
+phx.imgproxy_url_host = { "type" = "string", "default" = "" }
+phx.imgproxy_url_port = { "type" = "number", "default" = 5000 }
 phx.assets_url_host = { "type" = "string", "default" = "" }
 phx.link_url_host = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
