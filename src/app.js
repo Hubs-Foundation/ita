@@ -22,7 +22,7 @@ async function createApp() {
 
   let sshTotpQrData;
 
-  if (process.env.SSH_TOTP_QR_FILE) {
+  if (process.env.SSH_TOTP_QR_FILE && fs.existsSync(process.env.SSH_TOTP_QR_FILE)) {
     sshTotpQrData = fs.readFileSync(process.env.SSH_TOTP_QR_FILE).toString();
   }
 
