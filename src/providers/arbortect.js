@@ -40,33 +40,21 @@ class ArbortectProvider {
     return await this.parameterStore.read(`ita/${service}`);
   }
 
-  getStoredFileStream(bucket, key) {
-    return this.s3.getObject({ Bucket: bucket, Key: key }).createReadStream();
-  }
-
-  async pushDeploymentToStorage(tempDir, bucket, service) {
-    // Push non-wasm assets
+  async pushDeploymentToStorage(tempDir, target, service) {
     await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*.html" --exclude "*.wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
+      exec(`mkdir -p "${target}/${service}/pages/releases"`, {}, err => { if (err) rej(err); res(); })
     });
 
-    // Push wasm assets
     await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*" --include "*.wasm" --content-type "application/wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
+      exec(`mkdir -p "${target}/${service}/pages/latest"`, {}, err => { if (err) rej(err); res(); })
     });
 
-    // Push pages
     await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "no-cache" --delete --exclude "assets/*" --exclude "_/*" "${tempDir}" "s3://${bucket}/${service}/pages/latest"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
+      exec(`cp -R "${tempDir}/assets" "${target}/${service}"`, {}, err => { if (err) rej(err); res(); })
+    });
+
+    await new Promise((res, rej) => {
+      exec(`cp -R ${tempDir}/assets/* "${target}/${service}/pages/latest"`, {}, err => { if (err) rej(err); res(); })
     });
   }
 

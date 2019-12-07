@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const debug = require('debug')('ita:api');
 const { tryWithLock } = require("./locking");
 const flush = require("./flush");
@@ -25,7 +26,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     }
   
     const schema = schemas[service];
-    const { version } = req.body;
+    const { url, version } = req.body;
     const filename = `${service}-build-${version}.tar.gz`;
     const stackConfigs = await provider.readStackConfigs(service, schema);
 
@@ -36,19 +37,17 @@ function create(schemas, provider, habitat, sshTotpQrData) {
 
     // Read build tarball into temp directory
     const outStream = createWriteStream(`${tempDir}/${filename}`);
-    const bucket = stackConfigs.deploy.target;
+    const target = stackConfigs.deploy.target;
 
     await new Promise((resolve, rej) => {
-      const inStream = provider.getStoredFileStream(bucket, `${service}/builds/${filename}`);
-      inStream.on('error', rej);
-      inStream.pipe(outStream).on('error', rej).on('close', resolve);
+      http.get(url, res => res.pipe(outStream).on('error', rej).on('close', resolve));
     });
 
     // Extract build and remove tarball
     await tar.x({ file: `${tempDir}/${filename}`, gzip: true, C: tempDir });
     unlinkSync(`${tempDir}/${filename}`);
 
-    await provider.pushDeploymentToStorage(tempDir, bucket, service);
+    await provider.pushDeploymentToStorage(tempDir, target, service);
 
     // Cleanup
     await new Promise(r => rmdir(tempDir, r));
@@ -74,7 +73,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     // Re-enable hab package to deploying.
     await tryWithLock(schemas, provider, async () => {
       const newConfigs = {
-        deploy: { type: "s3" }
+        deploy: { type: process.env.PROVIDER === "aws" ? "s3" : "cp" }
       };
 
       await provider.writeAndFlushParameters(service, newConfigs, schemas)
@@ -98,17 +97,6 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     });
 
     return res.json({ result: "ok" });
-  }));
-
-  router.get('/deploy/:service/upload_url', forwardExceptions(async (req, res) => {
-    const service = req.params.service;
-    if (service !== "hubs" && service !== "spoke") {
-      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
-    }
-    const version = getTimeString();
-    const filename = `${service}-build-${version}.tar.gz`;
-    const url = await provider.getUploadUrl(service, filename, schemas);
-    return res.json({ type: "s3", url, version });
   }));
 
   // emits schemas for one or all services
