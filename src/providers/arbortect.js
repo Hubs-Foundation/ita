@@ -42,10 +42,6 @@ class ArbortectProvider {
 
   async pushDeploymentToStorage(tempDir, target, service) {
     await new Promise((res, rej) => {
-      exec(`mkdir -p "${target}/${service}/pages/releases"`, {}, err => { if (err) rej(err); res(); })
-    });
-
-    await new Promise((res, rej) => {
       exec(`mkdir -p "${target}/${service}/pages/latest"`, {}, err => { if (err) rej(err); res(); })
     });
 
