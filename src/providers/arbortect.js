@@ -54,7 +54,7 @@ class ArbortectProvider {
     });
 
     await new Promise((res, rej) => {
-      exec(`cp -R ${tempDir}/assets/* "${target}/${service}/pages/latest"`, {}, err => { if (err) rej(err); res(); })
+      exec(`cp -R ${tempDir}/pages/* "${target}/${service}/pages/latest"`, {}, err => { if (err) rej(err); res(); })
     });
   }
 

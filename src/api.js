@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
 const debug = require('debug')('ita:api');
 const { tryWithLock } = require("./locking");
 const flush = require("./flush");
@@ -40,7 +40,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
     const target = stackConfigs.deploy.target;
 
     await new Promise((resolve, rej) => {
-      http.get(url, res => res.pipe(outStream).on('error', rej).on('close', resolve));
+      https.get(url, res => res.pipe(outStream).on('error', rej).on('close', resolve));
     });
 
     // Extract build and remove tarball
