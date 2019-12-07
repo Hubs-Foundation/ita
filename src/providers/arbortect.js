@@ -59,17 +59,6 @@ class ArbortectProvider {
     await flush(service, this, this.habitat, schemas);
   }
 
-  async getUploadUrl(service, filename, schemas) {
-    const schema = schemas[service];
-    const stackConfigs = await this.readStackConfigs(process.env.AWS_STACK_ID, service, schema);
-
-    return this.s3.getSignedUrl("putObject", {
-      Bucket: stackConfigs.deploy.target,
-      Expires: 1800,
-      Key: `${service}/builds/${filename}`
-    });
-  }
-
   async getDailyEmailSendQuota() {
     return 1000000;
   }
