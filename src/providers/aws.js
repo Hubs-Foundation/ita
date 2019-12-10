@@ -5,7 +5,6 @@ const { ParameterStore } = require('hubs-configtool');
 const { exec } = require("child_process");
 const util = require("util");
 const flush = require("../flush");
-const { stackOutputsToStackConfigs } = require("../utils");
 
 class AWSProvider {
   async init(habitat) {
@@ -26,7 +25,6 @@ class AWSProvider {
     };
 
     this.cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
-    this.s3 = new AWS.S3(sharedOptions);
     this.ses = new AWS.SES({ ...sharedOptions, region: process.env.AWS_SES_REGION });
     this.stackName = await this.cloudFormation.getName(process.env.AWS_STACK_ID);
 
@@ -47,19 +45,7 @@ class AWSProvider {
 
   async readStackConfigs(service, schema) {
     const stack = process.env.AWS_STACK_ID;
-
-    const res = await this.describeStacks({ StackName: stack });
-    if (res.Stacks.length === 0) {
-      throw new Error(`Stack ${stack} not found.`);
-    }
-    if (res.Stacks[0].Outputs.length === 0) {
-      throw new Error(`Stack outputs unavailable.`);
-    }
-
-    const { StackName, Outputs } = res.Stacks[0];
-    const keymasterSecrets = this.parameterStore ? await this.parameterStore.read(`keymaster/${StackName}`) || {} : {};
-
-    return await stackOutputsToStackConfigs(Outputs, service, schema, keymasterSecrets);
+    return await this.cloudFormation.read(stack, service, schema, this.parameterStore);
   }
 
   async readEditableConfigs(service) {

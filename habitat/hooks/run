@@ -29,10 +29,13 @@ export HAB_HTTP_HOST="{{ cfg.hab.http_host }}"
 export HAB_HTTP_PORT="{{ cfg.hab.http_port }}"
 export HAB_SUP_HOST="{{ cfg.hab.sup_host }}"
 export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
-export HAB_USER="{{ cfg.hab.user }}"
 
 export HAB_COMMAND="{{ cfg.hab.command }}"
-export HAB_CACHE_KEY_PATH="/hab/cache/keys"
+
+{{ #if cfg.hab.user }}
+export HAB_USER="{{ cfg.hab.user }}"
+export HAB_CACHE_KEY_PATH="{{ cfg.hab.cache_key_path }}"
+{{/if}}
 
 export PARAMETER_STORE_PATH="{{ cfg.general.parameter_store_path }}"
 export STACK_CONFIGS_PATH="{{ cfg.general.stack_configs_path }}"

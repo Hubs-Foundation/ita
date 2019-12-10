@@ -8,7 +8,43 @@ function getTimeString() {
   )}`;
 }
 
-async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSecrets) {
+async function _performOutputXform(value, xform, args, keymasterSecrets, getSecretValue, getS3Object) {
+  if (xform === "read-aws-secret" || xform === "inject-aws-secret" || xform === "read-keymaster-secret" || xform === "inject-keymaster-secret") {
+    let secretId = value;
+
+    if (xform.startsWith("inject-")) {
+      secretId = value.match(/{(.*)}/)[1];
+    }
+
+    let secretValue;
+
+    if (xform.indexOf("keymaster") >= 0) {
+      secretValue = keymasterSecrets[secretId];
+    } else {
+      const secret = await getSecretValue({ SecretId: secretId });
+      secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
+    }
+
+    if (xform.startsWith("inject-")) {
+      return value.split(`{${secretId}}`).join(secretValue);
+    } else {
+      return secretValue;
+    }
+  } else if (xform === "read-s3-file-escaped" || xform === "read-s3-file-as-json") {
+    const [_, bucket, key] = value.match(/^s3:\/\/([^/]+)\/(.*)$/);
+    const obj = await getS3Object({ Bucket: bucket, Key: key });
+    const body = obj.Body.toString();
+    if (xform === "read-s3-file-escaped") {
+      return body.replace(/\n/g, "\\n");
+    } else {
+      return JSON.parse(body)[args[0]];
+    }
+  } else {
+    return value;
+  }
+}
+
+async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSecrets, getSecretValue, getS3Object) {
   const setters = [];
 
   const data = {};
@@ -58,7 +94,7 @@ async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSec
         const dataTarget = t.subSection ? data[t.section][t.subSection] : data[t.section];
 
         if (t.xform) {
-          this._performOutputXform(value, t.xform, t.args, keymasterSecrets).then(value => {
+          _performOutputXform(value, t.xform, t.args, keymasterSecrets, getSecretValue, getS3Object).then(value => {
             dataTarget[t.config] = coerceToType(schema, t.section, t.subSection, t.config, value);
             resolve();
           })
@@ -72,42 +108,6 @@ async function stackOutputsToStackConfigs(outputs, service, schema, keymasterSec
 
   await Promise.all(setters);
   return data;
-}
-
-async function _performOutputXform(value, xform, args, keymasterSecrets) {
-  if (xform === "read-aws-secret" || xform === "inject-aws-secret" || xform === "read-keymaster-secret" || xform === "inject-keymaster-secret") {
-    let secretId = value;
-
-    if (xform.startsWith("inject-")) {
-      secretId = value.match(/{(.*)}/)[1];
-    }
-
-    let secretValue;
-
-    if (xform.indexOf("keymaster") >= 0) {
-      secretValue = keymasterSecrets[secretId];
-    } else {
-      const secret = await this.getSecretValue({ SecretId: secretId });
-      secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
-    }
-
-    if (xform.startsWith("inject-")) {
-      return value.split(`{${secretId}}`).join(secretValue);
-    } else {
-      return secretValue;
-    }
-  } else if (xform === "read-s3-file-escaped" || xform === "read-s3-file-as-json") {
-    const [_, bucket, key] = value.match(/^s3:\/\/([^/]+)\/(.*)$/);
-    const obj = await this.getS3Object({ Bucket: bucket, Key: key });
-    const body = obj.Body.toString();
-    if (xform === "read-s3-file-escaped") {
-      return body.replace(/\n/g, "\\n");
-    } else {
-      return JSON.parse(body)[args[0]];
-    }
-  } else {
-    return value;
-  }
 }
 
 module.exports = { getTimeString, stackOutputsToStackConfigs };
