@@ -5,11 +5,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const api = require('./api');
-const AWS = require('aws-sdk');
-const { CloudFormation } = require("./cloud-formation");
-const { ParameterStore, Habitat } = require('hubs-configtool');
+const { Habitat } = require('hubs-configtool');
 const { loadSchemas } = require("./schemas");
 const { tryWithLock } = require("./locking");
+const { AWSProvider } = require("./providers/aws");
+const { ArbortectProvider } = require("./providers/arbortect");
+
 const flush = require("./flush");
 const AUTO_FLUSH_DURATION_MS = 30000;
 
@@ -21,39 +22,17 @@ async function createApp() {
 
   let sshTotpQrData;
 
-  if (process.env.SSH_TOTP_QR_FILE) {
+  if (process.env.SSH_TOTP_QR_FILE && fs.existsSync(process.env.SSH_TOTP_QR_FILE)) {
     sshTotpQrData = fs.readFileSync(process.env.SSH_TOTP_QR_FILE).toString();
   }
 
-  // accept credentials from either ~/.aws/credentials file, or from standard AWS_ env variables
-  const credentialProvider = new AWS.CredentialProviderChain([
-    () => new AWS.EnvironmentCredentials('AWS'),
-    () => new AWS.SharedIniFileCredentials(),
-    () => new AWS.EC2MetadataCredentials()
-  ]);
-
-  const sharedOptions = {
-    credentialProvider,
-    region: process.env.AWS_REGION,
-    signatureVersion: "v4"
-    // logger: { write: msg => debug(msg.trimEnd()) }
-  };
-
-  const cloudFormation = new CloudFormation(sharedOptions, sharedOptions, sharedOptions);
-  const s3 = new AWS.S3(sharedOptions);
-  const ses = new AWS.SES({ ...sharedOptions, region: process.env.AWS_SES_REGION });
-  const stackName = await cloudFormation.getName(process.env.AWS_STACK_ID);
-
-  const parameterStore = new ParameterStore({
-    credentialProvider,
-    region: process.env.AWS_REGION,
-    retryDelayOptions: { base: process.env.AWS_PS_RETRY_DELAY_MS },
-    // logger: { write: msg => debug(msg.trimEnd()) }
-  }, process.env.AWS_PS_REQS_PER_SEC);
+  const provider = process.env.PROVIDER === "arbortect" ? new ArbortectProvider() : new AWSProvider();
 
   const habitat = new Habitat(process.env.HAB_COMMAND,
                               process.env.HAB_HTTP_HOST, process.env.HAB_HTTP_PORT,
-                              process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT);
+                              process.env.HAB_SUP_HOST, process.env.HAB_SUP_PORT, process.env.HAB_USER ? process.env.HAB_USER : null);
+
+  await provider.init(habitat);
 
   const schemas = loadSchemas(process.env.SCHEMAS_DIR);
 
@@ -61,7 +40,7 @@ async function createApp() {
   const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg.trimEnd()) } });
   app.use(logger);
   app.use(bodyParser.json({ strict: true }));
-  app.use('/', api.create(schemas, stackName, s3, ses, cloudFormation, parameterStore, habitat, sshTotpQrData));
+  app.use('/', api.create(schemas, provider, habitat, sshTotpQrData));
   app.use(function (req, res, _next) {
     res.status(404).send({ error: "No such endpoint." });
   });
@@ -70,17 +49,17 @@ async function createApp() {
     res.status(500).json({ error: "Internal error. See logs for details." });
   });
 
-  let stackLastUpdated = null;
+  let stackLastUpdatedTime = null;
 
   const flushAllServicesOnStackUpdate = async () => {
     const services = Object.keys(schemas);
     let msg = `Auto-Flush: Flush already underway.`;
 
-    const newLastUpdatedTime = await cloudFormation.getLastUpdatedIfComplete(stackName);
+    const newLastUpdatedTime = await provider.getLastUpdatedIfComplete();
     if (!newLastUpdatedTime) return;
 
-    if (!stackLastUpdated || stackLastUpdated.getTime() !== newLastUpdatedTime.getTime()) {
-      await tryWithLock(schemas, cloudFormation, async () => {
+    if (!stackLastUpdatedTime || stackLastUpdatedTime !== newLastUpdatedTime) {
+      await tryWithLock(schemas, provider, async () => {
         for (const srv of services) {
           if (srv === "ita") continue; // Do not flush ita. ita should be managed via user.toml.
           if (!await habitat.has(srv, process.env.HAB_GROUP, process.env.HAB_ORG)) {
@@ -89,7 +68,7 @@ async function createApp() {
           }
 
           try {
-            await flush(srv, stackName, cloudFormation, parameterStore, habitat, schemas);
+            await flush(srv, provider, habitat, schemas);
           } catch (e) {
             debug(`Auto-flush of ${srv} failed.`);
             debug(e);
@@ -97,7 +76,7 @@ async function createApp() {
         }
         msg = `Stack update detected at ${newLastUpdatedTime}. Flush done. Services up-to-date: ${services.join(", ")}`;
 
-        stackLastUpdated = newLastUpdatedTime;
+        stackLastUpdatedTime = newLastUpdatedTime;
       });
 
       debug(msg);
@@ -111,15 +90,19 @@ async function createApp() {
   // Touch ready file
   if (process.env.READY_FILE) {
     fs.closeSync(fs.openSync(process.env.READY_FILE, 'w'));
+  }
 
-    process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
+    if (process.env.READY_FILE) {
       if (fs.existsSync(process.env.READY_FILE)) {
         fs.unlinkSync(process.env.READY_FILE);
       }
+    }
 
-      process.exit(); // eslint-disable-line no-process-exit
-    });
-  }
+    await provider.close();
+
+    process.exit(); // eslint-disable-line no-process-exit
+  });
 
   return app;
 }

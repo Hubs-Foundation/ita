@@ -9,19 +9,24 @@ phx.static_url_host = { "type" = "string", "default" = "" }
 phx.static_url_host_prefix = { "type" = "string", "default" = "" }
 phx.secondary_url_host = { "type" = "string", "default" = "" }
 phx.cors_proxy_url_host = { "type" = "string", "default" = "" }
+phx.imgproxy_url_host = { "type" = "string", "default" = "" }
+phx.imgproxy_url_port = { "type" = "number", "default" = 5000 }
+phx.assets_url_host = { "type" = "string", "default" = "" }
+phx.link_url_host = { "type" = "string", "default" = "" }
 phx.admin_access_key = { "type" = "string", "default" = "" }
 phx.allow_crawlers = { "type" = "boolean", "default" = false, category = "content", name = "Allow Web Crawlers", description = "Allowing web crawlers will cause your site to be hit regularly and be listed in search engines." }
 guardian.secret_key = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
 guardian.perms_key = { "type" = "string", "default" = "" }
 guardian.oauth_token_key = { "type" = "string", "default" = "" }
 erlang.node_cookie = { "type" = "string", "default" = "txlMOtlaY5x3crvOCko4uV5PM29ul3zGo1oBGNO3cDXx+7GHLKqt0gR9qzgThxb5" }
-erlang.bot_access_key = { "type" = "string", "default" = "" }
+ret.bot_access_key = { "type" = "string", "default" = "" }
 habitat.http_port = { "type" = "number", "default" = 9631 }
 habitat.ip = { "type" = "string", "default" = "127.0.0.1" }
 oauth_google.client_id = { "type" = "string", "default" = "foo" }
 oauth_google.client_secret = { "type" = "string", "default" = "bar" }
 db.username = { "type" = "string", "default" = "postgres" }
 db.password = { "type" = "string", "default" = "postgres" }
+db.port = { "type" = "number", "default" = 5432 }
 db.postgrest_password = { "type" = "string", "default" = "admin" }
 db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "polycosm_production" }
@@ -34,6 +39,7 @@ session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
 session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
 session_lock_db.database = { "type" = "string", "default" = "polycosm_locking" }
+session_lock_db.port = { "type" = "number", "default" = 5432 }
 security.content_security_policy = { "type" = "string", "default" = "default-src 'self'", category = "advanced", name = "Content Security Policy", description = "Content-Security-Policy override, leave blank to use the generated CSP." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
@@ -65,3 +71,4 @@ resolver.tenor_api_key = { "type" = "string", "default" = "", category = "api_ke
 resolver.bing_search_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Bing Search API Key", description = "API key to use for Bing Image and Video search." }
 resolver.twitch_client_id = { "type" = "string", "default" = "", category = "api_keys", name = "Twitch Client ID", description = "Client ID to use for Twitch search." }
 accounts.admin_email = { "type" = "string", default = ""  }
+assets.assets_path = { "type" = "string", default = "" }

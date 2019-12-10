@@ -7,15 +7,17 @@ const LOCK_TIMEOUT_MS = 1000 * 60 * 5;
 
 let pgConfig;
 
-async function connectToDatabase(schemas, cloudFormation) {
+async function connectToDatabase(schemas, provider) {
   if (!pgConfig) {
-    const itaConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, "ita", schemas.ita);
+    const itaConfigs = await provider.readStackConfigs("ita", schemas.ita);
 
     pgConfig = { // eslint-disable-line require-atomic-updates
       user: process.env.PGUSER || itaConfigs.db.username,
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,
-      database: process.env.PGDATABASE || itaConfigs.db.database
+      database: process.env.PGDATABASE || itaConfigs.db.database,
+      port: process.env.PGPORT || itaConfigs.db.port || 5432,
+      ssl: true
     };
   }
 
@@ -24,11 +26,12 @@ async function connectToDatabase(schemas, cloudFormation) {
   return client;
 }
 
-async function tryWithLock(schemas, cloudFormation, f) {
+// TODO using provider
+async function tryWithLock(schemas, provider, f) {
   let pg;
 
   try {
-    pg = await connectToDatabase(schemas, cloudFormation);
+    pg = await connectToDatabase(schemas, provider);
   } catch (err) {
     debug(`Unable to connect to database for locking, skipping: ${err}`);
     return;

@@ -1,4 +1,5 @@
 const express = require('express');
+const https = require('https');
 const debug = require('debug')('ita:api');
 const { tryWithLock } = require("./locking");
 const flush = require("./flush");
@@ -10,13 +11,12 @@ const { unlinkSync, mkdirSync, createWriteStream } = require('fs');
 const tar = require('tar');
 const rmdir = require('rimraf');
 const { exec } = require("child_process");
-const util = require("util");
 
 function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
 }
 
-function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, habitat, sshTotpQrData) {
+function create(schemas, provider, habitat, sshTotpQrData) {
   const router = express.Router();
 
   router.post('/deploy/:service', forwardExceptions(async (req, res) => {
@@ -26,9 +26,9 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     }
   
     const schema = schemas[service];
-    const { version } = req.body;
+    const { url, version } = req.body;
     const filename = `${service}-build-${version}.tar.gz`;
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
+    const stackConfigs = await provider.readStackConfigs(service, schema);
 
     // Create temp directory
     const tempDir = `${process.env.TEMP || tmpdir()}/ita-deploy-${getTimeString()}`;
@@ -37,54 +37,28 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
 
     // Read build tarball into temp directory
     const outStream = createWriteStream(`${tempDir}/${filename}`);
-    const bucket = stackConfigs.deploy.target;
+    const target = stackConfigs.deploy.target;
 
     await new Promise((resolve, rej) => {
-      const inStream = s3.getObject({ Bucket: bucket, Key: `${service}/builds/${filename}` }).createReadStream();
-      inStream.on('error', rej);
-      inStream.pipe(outStream).on('error', rej).on('close', resolve);
+      https.get(url, res => res.pipe(outStream).on('error', rej).on('close', resolve));
     });
 
     // Extract build and remove tarball
     await tar.x({ file: `${tempDir}/${filename}`, gzip: true, C: tempDir });
     unlinkSync(`${tempDir}/${filename}`);
 
-    // Push non-wasm assets
-    await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*.html" --exclude "*.wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
-    });
-
-    // Push wasm assets
-    await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "max-age-31556926" --exclude "*" --include "*.wasm" --content-type "application/wasm" "${tempDir}/assets" "s3://${bucket}/${service}/assets"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
-    });
-
-    // Push pages
-    await new Promise((res, rej) => {
-      exec(`${process.env.AWS_CLI} s3 sync --region ${process.env.AWS_REGION} --acl public-read --cache-control "no-cache" --delete --exclude "assets/*" --exclude "_/*" "${tempDir}" "s3://${bucket}/${service}/pages/latest"`, {}, err => {
-        if (err) rej(err);
-        res();
-      })
-    });
+    await provider.pushDeploymentToStorage(tempDir, target, service);
 
     // Cleanup
     await new Promise(r => rmdir(tempDir, r));
 
     // Stop hab package from deploying.
-    await tryWithLock(schemas, cloudFormation, async () => {
+    await tryWithLock(schemas, provider, async () => {
       const newConfigs = {
         deploy: { type: "none" }
       };
 
-      await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
-      await new Promise(r => setTimeout(r, 5000));
-      await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
+      await provider.writeAndFlushParameters(service, newConfigs, schemas)
     });
 
     return res.json({ result: "ok" });
@@ -97,14 +71,12 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     }
   
     // Re-enable hab package to deploying.
-    await tryWithLock(schemas, cloudFormation, async () => {
+    await tryWithLock(schemas, provider, async () => {
       const newConfigs = {
-        deploy: { type: "s3" }
+        deploy: { type: process.env.PROVIDER === "aws" ? "s3" : "cp" }
       };
 
-      await parameterStore.write(`ita/${stackName}/${service}`, newConfigs);
-      await new Promise(r => setTimeout(r, 5000));
-      await flush(service, stackName, cloudFormation, parameterStore, habitat, schemas);
+      await provider.writeAndFlushParameters(service, newConfigs, schemas)
     });
 
     // Restart package, which will flush it
@@ -127,25 +99,6 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     return res.json({ result: "ok" });
   }));
 
-  router.get('/deploy/:service/upload_url', forwardExceptions(async (req, res) => {
-    const service = req.params.service;
-    if (service !== "hubs" && service !== "spoke") {
-      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
-    }
-    const version = getTimeString();
-    const filename = `${service}-build-${version}.tar.gz`;
-    const schema = schemas[service];
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
-
-    const url = s3.getSignedUrl("putObject", {
-      Bucket: stackConfigs.deploy.target,
-      Expires: 1800,
-      Key: `${service}/builds/${filename}`
-    });
-
-    return res.json({ type: "s3", url, version });
-  }));
-
   // emits schemas for one or all services
   router.get('/schemas/:service?', forwardExceptions(async (req, res) => {
     if (req.params.service) {
@@ -163,7 +116,7 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     if (!(req.params.service in schemas)) {
       return res.status(400).json({ error: "Invalid service name." });
     }
-    const configs = await parameterStore.read(`ita/${stackName}/${req.params.service}`);
+    const configs = await provider.readEditableConfigs(req.params.service);
     return res.json(configs);
   }));
 
@@ -176,27 +129,27 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     }
 
     const schema = schemas[service];
-    const stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
-    const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
+    const stackConfigs = await provider.readStackConfigs(service, schema);
+    const editableConfigs = await provider.readEditableConfigs(req.params.service);
     const defaultConfigs = getDefaults(schema);
-    const configs = merge(defaultConfigs, stackConfigs, parameterStoreConfigs);
+    const configs = merge(defaultConfigs, stackConfigs, editableConfigs);
     return res.json(configs);
   }));
 
   // reads additional admin-only information about the stack
   router.get('/admin-info', forwardExceptions(async (req, res) => {
-    const getSendQuota = util.promisify(ses.getSendQuota).bind(ses);
-    const { Max24HourSend } = await getSendQuota({});
-    const retConfigs = await parameterStore.read(`ita/${stackName}/reticulum`) || {};
-    const isUsing3rdPartyEmail = !!(retConfigs && retConfigs.email && retConfigs.email.server);
+    const sendEmailQuota = await provider.getDailyEmailSendQuota();
+    const retConfigs = await provider.readEditableConfigs("reticulum") || {};
+    const isUsing3rdPartyEmail = process.env.MODE !== "aws" || !!(retConfigs && retConfigs.email && retConfigs.email.server);
 
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
-      ses_max_24_hour_send: Max24HourSend,
+      ses_max_24_hour_send: sendEmailQuota,
       using_ses: !isUsing3rdPartyEmail,
-      worker_domain: `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`,
+      worker_domain: await provider.getWorkerDomain(),
       assets_domain: process.env.ASSETS_DOMAIN,
-      server_domain: process.env.SERVER_DOMAIN
+      server_domain: process.env.SERVER_DOMAIN,
+      provider: process.env.PROVIDER
     });
   }));
 
@@ -210,9 +163,9 @@ function create(schemas, stackName, s3, ses, cloudFormation, parameterStore, hab
     }
     debug(`Updating ${req.params.service} with new values.`);
     // todo: validate against schema?
-    await tryWithLock(schemas, cloudFormation, async () => {
-      await parameterStore.write(`ita/${stackName}/${req.params.service}`, req.body);
-      await flush(req.params.service, stackName, cloudFormation, parameterStore, habitat, schemas);
+    await tryWithLock(schemas, provider, async () => {
+      await provider.writeParameterConfigs(req.params.service, req.body);
+      await flush(req.params.service, provider, habitat, schemas);
     });
 
     return res.json({ msg: `Update succeeded.` });

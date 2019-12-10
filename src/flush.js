@@ -39,20 +39,20 @@ function deleteUnmanagedConfigs(schema, configs) {
   }
 }
 
-async function flush(service, stackName, cloudFormation, parameterStore, habitat, schemas) {
+async function flush(service, provider, habitat, schemas) {
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
   let stackConfigs;
 
   try {
-    stackConfigs = await cloudFormation.read(process.env.AWS_STACK_ID, service, schema, parameterStore);
+    stackConfigs = await provider.readStackConfigs(service, schema);
   } catch (e) {
     debug("Stack outputs are unavailable. Try again later.");
     return;
   }
 
-  const parameterStoreConfigs = await parameterStore.read(`ita/${stackName}/${service}`) || {};
+  const editableConfigs = await provider.readEditableConfigs(service) || {};
   const defaultConfigs = getDefaults(schema);
   const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
   debug(`Computing delta for ${service}...`);
@@ -73,8 +73,8 @@ async function flush(service, stackName, cloudFormation, parameterStore, habitat
     }
   }
 
-  // Parameter store overrides stack overrides defaults overrides blank old configs.
-  const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, parameterStoreConfigs);
+  // Editable configs overrides stack overrides defaults overrides blank old configs.
+  const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, editableConfigs);
 
   // Strip out any un-managed configs before flushing since the above code may have read them
   // from Habitat.

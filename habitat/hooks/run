@@ -6,18 +6,19 @@ set -e
 
 export HOST="{{ cfg.general.host }}"
 export PORT="{{ cfg.general.port }}"
+export PROVIDER="{{ cfg.general.provider }}"
 export DEBUG="{{ cfg.general.debug }}"
 export REQ_LOG_FORMAT="{{ cfg.general.req_log_format }}"
 export SSH_TOTP_QR_FILE="{{ pkg.svc_files_path }}/ssh-totp-qr.url"
 export READY_FILE="{{ pkg.svc_var_path }}/ready"
+export SERVER_DOMAIN="{{ cfg.general.server_domain }}"
+export ASSETS_DOMAIN="{{ cfg.general.assets_domain }}"
 
 export AWS_REGION="{{ cfg.aws.region }}"
 export AWS_SES_REGION="{{ cfg.aws.ses_region }}"
 export AWS_STACK_NAME="{{ cfg.aws.stack_name }}"
 export AWS_STACK_ID="{{ cfg.aws.stack_id }}"
 export AWS_ACCOUNT_ID="{{ cfg.aws.account_id }}"
-export SERVER_DOMAIN="{{ cfg.aws.server_domain }}"
-export ASSETS_DOMAIN="{{ cfg.aws.assets_domain }}"
 export AWS_PS_REQS_PER_SEC="{{ cfg.aws.ps_reqs_per_sec }}"
 export AWS_PS_RETRY_DELAY_MS="{{ cfg.aws.ps_retry_delay_ms }}"
 export AWS_CLI="{{ pkgPathFor "core/aws-cli" }}/bin/aws"
@@ -28,8 +29,13 @@ export HAB_HTTP_HOST="{{ cfg.hab.http_host }}"
 export HAB_HTTP_PORT="{{ cfg.hab.http_port }}"
 export HAB_SUP_HOST="{{ cfg.hab.sup_host }}"
 export HAB_SUP_PORT="{{ cfg.hab.sup_port }}"
+export HAB_USER="{{ cfg.hab.user }}"
 
 export HAB_COMMAND="{{ cfg.hab.command }}"
+export HAB_CACHE_KEY_PATH="/hab/cache/keys"
+
+export PARAMETER_STORE_PATH="{{ cfg.general.parameter_store_path }}"
+export STACK_CONFIGS_PATH="{{ cfg.general.stack_configs_path }}"
 
 # Assumes we've granted UNIX read permissions to this file to the user running the service
 export HAB_CTL_SECRET=$(cat /hab/sup/default/CTL_SECRET)
