@@ -35,11 +35,13 @@ db.pool_size = { "type" = "number", "default" = 16 }
 db.idle_interval = { "type" = "number", "default" = 3000000000 }
 db.queue_interval = { "type" = "number", "default" = 60000 }
 db.timeout = { "type" = "number", "default" = 60000 }
+db.ssl = { "type" = "boolean", "default" = false }
 session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
 session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
 session_lock_db.database = { "type" = "string", "default" = "polycosm_locking" }
 session_lock_db.port = { "type" = "number", "default" = 5432 }
+session_lock_db.ssl = { "type" = "boolean", "default" = false }
 security.content_security_policy = { "type" = "string", "default" = "default-src 'self'", category = "advanced", name = "Content Security Policy", description = "Content-Security-Policy override, leave blank to use the generated CSP." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
