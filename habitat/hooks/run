@@ -34,7 +34,7 @@ export HAB_COMMAND="{{ cfg.hab.command }}"
 
 {{ #if cfg.hab.user }}
 export HAB_USER="{{ cfg.hab.user }}"
-export HAB_CACHE_KEY_PATH="{{ cfg.hab.cache_key_path }}"
+export HAB_CACHE_KEY_PATH="/hab/cache/keys"
 {{/if}}
 
 export PARAMETER_STORE_PATH="{{ cfg.general.parameter_store_path }}"

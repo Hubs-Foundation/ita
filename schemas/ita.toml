@@ -12,6 +12,7 @@ hab.http_host = { "type" = "string", "default" = "localhost" }
 hab.http_port = { "type" = "number", "default" = 9631 }
 hab.sup_host = { "type" = "string", "default" = "localhost" }
 hab.sup_port = { "type" = "number", "default" = 9632 }
+hab.user = { "type" = "string", "default" = "" }
 db.username = { "type" = "string", "default" = "postgres" }
 db.password = { "type" = "string", "default" = "postgres" }
 db.hostname = { "type" = "string", "default" = "localhost" }
