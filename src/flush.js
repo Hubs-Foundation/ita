@@ -40,6 +40,9 @@ function deleteUnmanagedConfigs(schema, configs) {
 }
 
 async function flush(service, provider, habitat, schemas) {
+  // TODO skip flush if the ring is already running a newer version of ita by checking census.
+  // If we don't do this, adding new fields is risky because we briefly run a legacy version of ita
+  // on startup, so any new configs since that version may be temporarily de-configured.
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
