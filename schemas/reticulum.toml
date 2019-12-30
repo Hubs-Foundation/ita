@@ -77,4 +77,4 @@ assets.assets_path = { "type" = "string", default = "" }
 twitter_client.access_token = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Access Token", description = "Twitter API Access Token to enable Twitter sharing" }
 twitter_client.access_token_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Access Token Secret", description = "Twitter API Access Token Secret" }
 twitter_client.consumer_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Consumer Secret", description = "Twitter API Consumer Secret" }
-twitter_client.consumer_key = { "type" = "string", "default" = "", category = "api_keys", name = "Twitch Client ID", description = "Twitter API Consumer Key" }
+twitter_client.consumer_key = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Consumer Key", description = "Twitter API Consumer Key" }
