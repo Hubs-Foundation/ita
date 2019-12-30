@@ -1,4 +1,4 @@
-const debug = require("debug")("ita");
+const debug = require("debug")("ita:schemas");
 const fs = require("fs");
 const toml = require("@iarna/toml");
 const path = require("path");

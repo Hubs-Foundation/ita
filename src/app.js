@@ -1,6 +1,6 @@
 const fs = require('fs');
 const process = require('process');
-const debug = require('debug')('ita');
+const debug = require('debug')('ita:app');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
