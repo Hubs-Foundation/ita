@@ -1,0 +1,5 @@
+deploy.type = { "type" = "string" }
+deploy.assets_target = { "type" = "string" }
+deploy.assets_region = { "type" = "string" }
+deploy.redirector_taret = { "type" = "string" }
+deploy.redirector_region = { "type" = "string" }
