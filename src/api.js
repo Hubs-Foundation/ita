@@ -140,7 +140,7 @@ function create(schemas, provider, habitat, sshTotpQrData) {
   router.get('/admin-info', forwardExceptions(async (req, res) => {
     const sendEmailQuota = await provider.getDailyEmailSendQuota();
     const retConfigs = await provider.readEditableConfigs("reticulum") || {};
-    const isUsing3rdPartyEmail = process.env.MODE !== "aws" || !!(retConfigs && retConfigs.email && retConfigs.email.server);
+    const isUsing3rdPartyEmail = process.env.PROVIDER !== "aws" || !!(retConfigs && retConfigs.email && retConfigs.email.server);
 
     return res.json({
       ssh_totp_qr_data: sshTotpQrData,
