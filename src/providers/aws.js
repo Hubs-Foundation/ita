@@ -95,7 +95,7 @@ class AWSProvider {
   }
 
   async getWorkerDomain() {
-    return `${process.env.AWS_STACK_NAME}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
+    return `${process.env.AWS_STACK_NAME.toLowerCase()}-${process.env.AWS_ACCOUNT_ID}-hubs-worker.com`
   }
 
   async close() {
