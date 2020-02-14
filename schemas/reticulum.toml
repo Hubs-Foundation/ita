@@ -79,3 +79,6 @@ twitter_client.access_token = { "type" = "string", "default" = "", category = "a
 twitter_client.access_token_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Access Token Secret", description = "Twitter API Access Token Secret" }
 twitter_client.consumer_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Consumer Secret", description = "Twitter API Consumer Secret" }
 twitter_client.consumer_key = { "type" = "string", "default" = "", category = "api_keys", name = "Twitter Consumer Key", description = "Twitter API Consumer Key" }
+discord_client.client_id = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Client ID", description = "Discord Client ID for Hubs Discord Bot" }
+discord_client.client_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Client Secret", description = "Discord Client Secret for Hubs Discord Bot" }
+discord_client.bot_token = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Bot Token", description = "Discord Bot Token for Hubs Discord Bot" }
