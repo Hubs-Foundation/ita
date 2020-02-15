@@ -10,3 +10,4 @@ general.shard_count = { "type" = "string", "default" = "0" }
 general.verbose = { "type" = "string", "default" = "false" }
 general.locale = { "type" = "string", "default" = "en-US" }
 general.timezone = { "type" = "string", "default" = "America/Los_Angeles" }
+general.default_scene_url = { "type" = "string", "default" = "" }
