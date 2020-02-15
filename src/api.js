@@ -101,18 +101,19 @@ function create(schemas, provider, habitat, sshTotpQrData) {
 
   // emits schemas for one or all services
   router.get('/schemas/:service?', forwardExceptions(async (req, res) => {
+    let out = schemas;
+
     if (req.params.service) {
       if (!(req.params.service in schemas)) {
         return res.status(400).json({ error: "Invalid service name." });
       }
 
-      // HACK, the admin console chokes on schema descriptors that have new attributes.
-      // This can be removed once most end users have updated their forks to master.
-
-      return res.json(stripSources(JSON.parse(JSON.stringify(schemas[req.params.service]))));
-    } else {
-      return res.json(stripSources(JSON.parse(JSON.stringify(schemas))));
+      out = schemas[req.params.service];
     }
+
+    // HACK, the admin console chokes on schema descriptors that have new attributes.
+    // This can be removed once most end users have updated their forks to master.
+    return res.json(stripSources(JSON.parse(JSON.stringify(out))));
   }));
 
   // reads the latest configs from parameter store
