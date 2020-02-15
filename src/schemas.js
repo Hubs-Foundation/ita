@@ -77,12 +77,11 @@ function getDefaults(schema) {
 
 // Given a descriptor, if it has a "source" column, use fnConfigForService (or the cache)
 // to look up the source config. See getSourcedConfigs for more info.
-async function getSourcedValue(descriptor, fnCurrentConfigsForService, sourceConfigCache) {
+async function getSourcedValue(descriptor, fnCurrentConfigsForService) {
   if ("source" in descriptor) {
     const sourceParts = descriptor.source.split(".");
     const service = sourceParts[0];
-    const sourceConfigs = sourceConfigCache[service] || await fnCurrentConfigsForService(service);
-    sourceConfigCache[service] = sourceConfigs; // eslint-disable-line require-atomic-updates
+    const sourceConfigs = await fnCurrentConfigsForService(service);
     let node = sourceConfigs;
 
     for (let i = 1; i < sourceParts.length; i++) {
@@ -102,23 +101,19 @@ async function getSourcedValue(descriptor, fnCurrentConfigsForService, sourceCon
 // the discord bot service, if its installed.
 //
 // fnConfigForService is a function to, given a service, return the computed configs.
-async function getSourcedConfigs(schema, fnCurrentConfigsForService, sourceConfigCache = null) {
-  if (sourceConfigCache === null) {
-    sourceConfigCache = {};
-  }
-
+async function getSourcedConfigs(schema, fnCurrentConfigsForService) {
   const config = {};
   for (const k in schema) {
     const v = schema[k];
     if (typeof v === "object") {
       // it's either a descriptor, or a subtree of descriptors
       if (isDescriptor(v)) {
-        const sourceValue = await getSourcedValue(v, fnCurrentConfigsForService, sourceConfigCache);
+        const sourceValue = await getSourcedValue(v, fnCurrentConfigsForService);
         if (sourceValue !== undefined) {
           config[k] = sourceValue;
         }
       } else {
-        config[k] = await getSourcedConfigs(v, fnCurrentConfigsForService, sourceConfigCache);
+        config[k] = await getSourcedConfigs(v, fnCurrentConfigsForService);
       }
     } else {
       // schemas should only be a tree of descriptors!

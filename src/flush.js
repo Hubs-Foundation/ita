@@ -51,9 +51,20 @@ async function computeCurrentConfigs(service, provider, habitat, schemas, fnFetc
 
   const editableConfigs = await provider.readEditableConfigs(service) || {};
   const defaultConfigs = getDefaults(schema);
-  const sourceConfigs = resolveSources ? await getSourcedConfigs(schema, async service => (
-    await computeCurrentConfigs(service, provider, habitat, schemas)
-  )) : {};
+
+  // For sourced configs, we need to provide a function that will compute the configs of another service.
+  const fnCurrentConfigsForService = (() => {
+    const sourceConfigCache = {};
+
+    return async (service) => {
+      if (sourceConfigCache[service]) return sourceConfigCache[service];
+      const { newConfigs } = await computeCurrentConfigs(service, provider, habitat, schemas);
+      sourceConfigCache[service] = newConfigs; // eslint-disable-line require-atomic-updates
+      return newConfigs;
+    };
+  })();
+
+  const sourceConfigs = resolveSources ? await getSourcedConfigs(schema, fnCurrentConfigsForService) : {};
 
   debug(`Computing delta for ${service}...`);
 
