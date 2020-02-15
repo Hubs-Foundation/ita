@@ -39,20 +39,20 @@ function deleteUnmanagedConfigs(schema, configs) {
   }
 }
 
-async function computeCurrentConfigs(service, provider, habitat, oldConfigs, schemas, resolveSources = false) {
+async function computeCurrentConfigs(service, provider, habitat, schemas, fnFetchOldConfigs = async () => {}, resolveSources = false) {
   const schema = schemas[service];
   let stackConfigs;
 
   try {
     stackConfigs = await provider.readStackConfigs(service, schema);
   } catch (e) {
-    return null;
+    return { oldConfigs: null, newConfigs: null };
   }
 
   const editableConfigs = await provider.readEditableConfigs(service) || {};
   const defaultConfigs = getDefaults(schema);
   const sourceConfigs = resolveSources ? await getSourcedConfigs(schema, async service => (
-    await computeCurrentConfigs(service, provider, habitat, {}, schemas)
+    await computeCurrentConfigs(service, provider, habitat, schemas)
   )) : {};
 
   debug(`Computing delta for ${service}...`);
@@ -60,6 +60,7 @@ async function computeCurrentConfigs(service, provider, habitat, oldConfigs, sch
   // Any old configs not present in new configs implies they are no longer have a value, blank them out for
   // security and so subsequent runs will have no diff.
   const blankOldConfigs = {};
+  const oldConfigs = await fnFetchOldConfigs();
 
   for (let section in oldConfigs) {
     blankOldConfigs[section] = {};
@@ -74,7 +75,9 @@ async function computeCurrentConfigs(service, provider, habitat, oldConfigs, sch
   }
 
   // Editable configs overrides stack overrides defaults overrides blank old configs.
-  return merge(blankOldConfigs, defaultConfigs, sourceConfigs, stackConfigs, editableConfigs);
+  const newConfigs = merge(blankOldConfigs, defaultConfigs, sourceConfigs, stackConfigs, editableConfigs);
+
+  return { oldConfigs, newConfigs };
 }
 
 async function flush(service, provider, habitat, schemas) {
@@ -84,10 +87,10 @@ async function flush(service, provider, habitat, schemas) {
   debug(`Flushing service ${service}...`);
   const now = Date.now();
   const schema = schemas[service];
-  const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
+  const fnFetchOldConfigs = async () => await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
 
   // Editable configs overrides stack overrides defaults overrides blank old configs.
-  const newConfigs = await computeCurrentConfigs(service, provider, habitat, oldConfigs, schemas, true);
+  const { oldConfigs, newConfigs } = await computeCurrentConfigs(service, provider, habitat, schemas, fnFetchOldConfigs, true);
   if (!newConfigs) {
     debug("Stack outputs are unavailable. Try again later.");
     return;

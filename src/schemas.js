@@ -82,13 +82,15 @@ async function getSourcedValue(descriptor, fnCurrentConfigsForService, sourceCon
     const sourceParts = descriptor.source.split(".");
     const service = sourceParts[0];
     const sourceConfigs = sourceConfigCache[service] || await fnCurrentConfigsForService(service);
+    sourceConfigCache[service] = sourceConfigs; // eslint-disable-line require-atomic-updates
     let node = sourceConfigs;
 
     for (let i = 1; i < sourceParts.length; i++) {
+      if (!node) return undefined;
+
       node = node[sourceParts[i]];
     }
 
-    sourceConfigCache[service] = sourceConfigs; // eslint-disable-line require-atomic-updates
     return node;
   } else {
     return undefined;
