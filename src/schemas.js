@@ -153,6 +153,8 @@ function stripSources(schema) {
       }
     }
   }
+
+  return schema;
 }
 
 module.exports = { loadSchemas, getDefaults, getSourcedConfigs, getEmptyValue, isUnmanaged, coerceToType, isDescriptor, stripSources };
