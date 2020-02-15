@@ -100,7 +100,7 @@ async function getSourcedValue(descriptor, fnCurrentConfigsForService) {
 // be copied from another service's generated configs. Currently we only use this for
 // the discord bot service, if its installed.
 //
-// fnConfigForService is a function to, given a service, return the computed configs.
+// fnCurrentConfigForService is a function to, given a service, return the computed configs.
 async function getSourcedConfigs(schema, fnCurrentConfigsForService) {
   const config = {};
   for (const k in schema) {
