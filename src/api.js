@@ -3,7 +3,7 @@ const https = require('https');
 const debug = require('debug')('ita:api');
 const { tryWithLock } = require("./locking");
 const flush = require("./flush");
-const { getDefaults } = require("./schemas");
+const { getDefaults, stripSources } = require("./schemas");
 const { getTimeString } = require("./utils");
 const merge = require('lodash.merge');
 const { tmpdir } = require('os');
@@ -105,9 +105,13 @@ function create(schemas, provider, habitat, sshTotpQrData) {
       if (!(req.params.service in schemas)) {
         return res.status(400).json({ error: "Invalid service name." });
       }
-      return res.json(schemas[req.params.service]);
+
+      // HACK, the admin console chokes on schema descriptors that have new attributes.
+      // This can be removed once most end users have updated their forks to master.
+
+      return res.json(stripSources(JSON.parse(JSON.stringify(schemas[req.params.service]))));
     } else {
-      return res.json(schemas);
+      return res.json(stripSources(JSON.parse(JSON.stringify(schemas))));
     }
   }));
 
