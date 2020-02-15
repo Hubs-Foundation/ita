@@ -144,13 +144,12 @@ function stripSources(schema) {
   for (const k in schema) {
     const v = schema[k];
     if (typeof v === "object") {
-      // it's either a descriptor, or a subtree of descriptors
       if (isDescriptor(v)) {
         if (v.source) {
           delete v.source;
-        } else {
-          stripSources(v);
         }
+      } else {
+        stripSources(v);
       }
     }
   }
