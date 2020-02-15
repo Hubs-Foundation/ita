@@ -2,7 +2,7 @@ const diff = require('deep-diff').diff;
 const merge = require('lodash.merge');
 const debug = require('debug')('ita:flush');
 const debugDiffs = require('debug')('ita-secrets:flush');
-const { getDefaults, getEmptyValue, isUnmanaged, isDescriptor } = require("./schemas");
+const { getDefaults, getSourcedConfigs, getEmptyValue, isUnmanaged, isDescriptor } = require("./schemas");
 
 function getVersion(ts) {
   return Math.floor(ts / 1000);
@@ -39,25 +39,22 @@ function deleteUnmanagedConfigs(schema, configs) {
   }
 }
 
-async function flush(service, provider, habitat, schemas) {
-  // TODO skip flush if the ring is already running a newer version of ita by checking census.
-  // If we don't do this, adding new fields is risky because we briefly run a legacy version of ita
-  // on startup, so any new configs since that version may be temporarily de-configured.
-  debug(`Flushing service ${service}...`);
-  const now = Date.now();
+async function computeCurrentConfigs(service, provider, habitat, oldConfigs, schemas, resolveSources = false) {
   const schema = schemas[service];
   let stackConfigs;
 
   try {
     stackConfigs = await provider.readStackConfigs(service, schema);
   } catch (e) {
-    debug("Stack outputs are unavailable. Try again later.");
-    return;
+    return null;
   }
 
   const editableConfigs = await provider.readEditableConfigs(service) || {};
   const defaultConfigs = getDefaults(schema);
-  const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
+  const sourceConfigs = resolveSources ? await getSourcedConfigs(schema, async service => (
+    await computeCurrentConfigs(service, provider, habitat, {}, schemas)
+  )) : {};
+
   debug(`Computing delta for ${service}...`);
 
   // Any old configs not present in new configs implies they are no longer have a value, blank them out for
@@ -77,7 +74,24 @@ async function flush(service, provider, habitat, schemas) {
   }
 
   // Editable configs overrides stack overrides defaults overrides blank old configs.
-  const newConfigs = merge(blankOldConfigs, defaultConfigs, stackConfigs, editableConfigs);
+  return merge(blankOldConfigs, defaultConfigs, sourceConfigs, stackConfigs, editableConfigs);
+}
+
+async function flush(service, provider, habitat, schemas) {
+  // TODO skip flush if the ring is already running a newer version of ita by checking census.
+  // If we don't do this, adding new fields is risky because we briefly run a legacy version of ita
+  // on startup, so any new configs since that version may be temporarily de-configured.
+  debug(`Flushing service ${service}...`);
+  const now = Date.now();
+  const schema = schemas[service];
+  const oldConfigs = await habitat.read(service, process.env.HAB_GROUP, process.env.HAB_ORG);
+
+  // Editable configs overrides stack overrides defaults overrides blank old configs.
+  const newConfigs = await computeCurrentConfigs(service, provider, habitat, oldConfigs, schemas, true);
+  if (!newConfigs) {
+    debug("Stack outputs are unavailable. Try again later.");
+    return;
+  }
 
   // Strip out any un-managed configs before flushing since the above code may have read them
   // from Habitat.

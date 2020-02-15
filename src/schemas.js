@@ -5,7 +5,7 @@ const path = require("path");
 
 // A TOML object is considered to be a config descriptor if it at least has
 // a "type" key and has no keys which aren't valid descriptor metadata.
-const DESCRIPTOR_FIELDS = ["default", "type", "of", "unmanaged", "category", "name", "description"];
+const DESCRIPTOR_FIELDS = ["default", "type", "of", "unmanaged", "category", "name", "description", "source"];
 function isDescriptor(obj) {
   if (typeof obj !== "object") return false;
   if (!("type" in obj)) return false;
@@ -75,6 +75,58 @@ function getDefaults(schema) {
   return config;
 }
 
+// Given a descriptor, if it has a "source" column, use fnConfigForService (or the cache)
+// to look up the source config. See getSourcedConfigs for more info.
+async function getSourcedValue(descriptor, fnCurrentConfigsForService, sourceConfigCache) {
+  if ("source" in descriptor) {
+    const sourceParts = descriptor.source.split(".");
+    const service = sourceParts[0];
+    const sourceConfigs = sourceConfigCache[service] || await fnCurrentConfigsForService(service);
+    let node = sourceConfigs;
+
+    for (let i = 1; i < sourceParts.length; i++) {
+      node = node[sourceParts[i]];
+    }
+
+    sourceConfigCache[service] = sourceConfigs; // eslint-disable-line require-atomic-updates
+    return node;
+  } else {
+    return undefined;
+  }
+}
+
+// For configs that have a "source" in the schema, this means they should
+// be copied from another service's generated configs. Currently we only use this for
+// the discord bot service, if its installed.
+//
+// fnConfigForService is a function to, given a service, return the computed configs.
+async function getSourcedConfigs(schema, fnCurrentConfigsForService, sourceConfigCache = null) {
+  if (sourceConfigCache === null) {
+    sourceConfigCache = {};
+  }
+
+  const config = {};
+  for (const k in schema) {
+    const v = schema[k];
+    if (typeof v === "object") {
+      // it's either a descriptor, or a subtree of descriptors
+      if (isDescriptor(v)) {
+        const sourceValue = await getSourcedValue(v, fnCurrentConfigsForService, sourceConfigCache);
+        if (sourceValue !== undefined) {
+          config[k] = sourceValue;
+        }
+      } else {
+        config[k] = await getSourcedConfigs(v, fnCurrentConfigsForService, sourceConfigCache);
+      }
+    } else {
+      // schemas should only be a tree of descriptors!
+      throw new Error(`Schema contains invalid field ${k} = ${v}.`);
+    }
+  }
+
+  return config;
+}
+
 function loadSchemas(dir) {
   const schemas = {};
   const schemaFiles = fs.readdirSync(dir);
@@ -91,4 +143,4 @@ function loadSchemas(dir) {
   return schemas;
 }
 
-module.exports = { loadSchemas, getDefaults, getEmptyValue, isUnmanaged, coerceToType, isDescriptor };
+module.exports = { loadSchemas, getDefaults, getSourcedConfigs, getEmptyValue, isUnmanaged, coerceToType, isDescriptor };
