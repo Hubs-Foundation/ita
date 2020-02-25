@@ -43,14 +43,22 @@ session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
 session_lock_db.database = { "type" = "string", "default" = "polycosm_locking" }
 session_lock_db.port = { "type" = "number", "default" = 5432 }
 session_lock_db.ssl = { "type" = "boolean", "default" = false }
-security.csp_script_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy script-src Rules", description = "Additional script-src Content-Security-Policy rules to add to page headers." }
-security.csp_font_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy font-src Rules", description = "Additional font-src Content-Security-Policy rules to add to page headers." }
-security.csp_style_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy style-src Rules", description = "Additional style-src Content-Security-Policy rules to add to page headers." }
-security.csp_connect_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy connect-src Rules", description = "Additional connect-src Content-Security-Policy rules to add to page headers." }
-security.csp_img_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy img-src Rules", description = "Additional img-src Content-Security-Policy rules to add to page headers." }
-security.csp_media_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy media-src Rules", description = "Additional media-src Content-Security-Policy rules to add to page headers." }
-security.csp_manifest_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy manifest-src Rules", description = "Additional manifest-src Content-Security-Policy rules to add to page headers." }
-security.csp_form_action = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy form-action Rules", description = "Additional form-action Content-Security-Policy rules to add to page headers." }
+extra_csp.script_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy script-src Rules", description = "Additional script-src Content-Security-Policy rules to add to page headers." }
+extra_csp.font_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy font-src Rules", description = "Additional font-src Content-Security-Policy rules to add to page headers." }
+extra_csp.style_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy style-src Rules", description = "Additional style-src Content-Security-Policy rules to add to page headers." }
+extra_csp.connect_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy connect-src Rules", description = "Additional connect-src Content-Security-Policy rules to add to page headers." }
+extra_csp.img_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy img-src Rules", description = "Additional img-src Content-Security-Policy rules to add to page headers." }
+extra_csp.media_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy media-src Rules", description = "Additional media-src Content-Security-Policy rules to add to page headers." }
+extra_csp.manifest_src = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy manifest-src Rules", description = "Additional manifest-src Content-Security-Policy rules to add to page headers." }
+extra_csp.form_action = { "type" = "string", "default" = "", category = "advanced", name = "Extra Content Security Policy form-action Rules", description = "Additional form-action Content-Security-Policy rules to add to page headers." }
+extra_headers.extra_index_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage HTTP Headers", description = "Comma separated extra HTTP headers for homepage. (Eg X-Header-1: Value, X-Header-2: Value)" }
+extra_headers.extra_room_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room HTTP Headers", description = "Comma separated extra HTTP headers for room pages. (Eg X-Header-1: Value, X-Header-2: Value)" }
+extra_headers.extra_scene_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene HTTP Headers", description = "Comma separated extra HTTP headers for scene pages. (Eg X-Header-1: Value, X-Header-2: Value)" }
+extra_headers.extra_avatar_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP Headers", description = "Comma separated extra HTTP headers for avatar pages. (Eg X-Header-1: Value, X-Header-2: Value)" }
+extra_scripts.extra_index_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage Scripts", description = "Extra Javascript to run on homepage." }
+extra_scripts.extra_room_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room Scripts", description = "Extra Javascript to run on room pages." }
+extra_scripts.extra_scene_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene Scripts", description = "Extra Javascript to run on scene pages." }
+extra_scripts.extra_avatar_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP scripts", description = "Extra Javascript to run on avatar pages." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
