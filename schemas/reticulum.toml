@@ -43,7 +43,14 @@ session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
 session_lock_db.database = { "type" = "string", "default" = "polycosm_locking" }
 session_lock_db.port = { "type" = "number", "default" = 5432 }
 session_lock_db.ssl = { "type" = "boolean", "default" = false }
-security.content_security_policy = { "type" = "string", "default" = "default-src 'self'", category = "advanced", name = "Content Security Policy", description = "Content-Security-Policy override, leave blank to use the generated CSP." }
+security.csp_script_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy script-src Rules", description = "Additional script-src Content-Security-Policy rules to add to page headers." }
+security.csp_font_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy font-src Rules", description = "Additional font-src Content-Security-Policy rules to add to page headers." }
+security.csp_style_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy style-src Rules", description = "Additional style-src Content-Security-Policy rules to add to page headers." }
+security.csp_connect_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy connect-src Rules", description = "Additional connect-src Content-Security-Policy rules to add to page headers." }
+security.csp_img_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy img-src Rules", description = "Additional img-src Content-Security-Policy rules to add to page headers." }
+security.csp_media_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy media-src Rules", description = "Additional media-src Content-Security-Policy rules to add to page headers." }
+security.csp_manifest_src = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy manifest-src Rules", description = "Additional manifest-src Content-Security-Policy rules to add to page headers." }
+security.csp_form_action = { "type" = "string", "default" = "", category = "advanced", name = "Custom Content Security Policy form-action Rules", description = "Additional form-action Content-Security-Policy rules to add to page headers." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
