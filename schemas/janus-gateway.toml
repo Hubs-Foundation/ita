@@ -1,7 +1,7 @@
 general.server_name = { "type" = "string", "default" = "Janus" }
 general.iface = { "type" = "string", "default" = "0.0.0.0" }
 general.log_to_syslog = { "type" = "string", "default" = "true"}
-general.debug_level = { "type" = "number", "default" = 4}
+general.debug_level = { "type" = "number", "default" = 4, "category" = "advanced", "name" = "Janus Debug Log Level"}
 general.token_auth = { "type" = "string", "default" = "no" }
 general.session_timeout = { "type" = "number", "default" = 60}
 general.admin_secret = { "type" = "string", "default" = "secret" }
@@ -13,7 +13,7 @@ media.dtls_mtu = { "type" = "number", "default" = 1472}
 media.force_bundle = { "type" = "string", "default" = "false"}
 media.force_rtcp_mux = { "type" = "string", "default" = "false"}
 media.no_media_timer = { "type" = "number", "default" = 1}
-nat.nice_debug = { "type" = "string", "default" = "false"}
+nat.nice_debug = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Enable ICE Debugging"}
 nat.ice_lite = { "type" = "string", "default" = "false"}
 nat.ice_tcp = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Use TCP ICE", "description" = "Use TCP protocol for ICE negotiation" }
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet"}
