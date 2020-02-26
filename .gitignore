@@ -3,3 +3,4 @@
 /dist
 .env
 itsready
+data/parameter-store-local
