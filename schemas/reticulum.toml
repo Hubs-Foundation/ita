@@ -55,10 +55,14 @@ extra_headers.extra_index_headers = { "type" = "string", "default" = "", categor
 extra_headers.extra_room_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room HTTP Headers", description = "Pipe separated extra HTTP headers for room pages. (Eg X-Header-1: Value|X-Header-2: Value)" }
 extra_headers.extra_scene_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene HTTP Headers", description = "Pipe separated extra HTTP headers for scene pages. (Eg X-Header-1: Value|X-Header-2: Value)" }
 extra_headers.extra_avatar_headers = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP Headers", description = "Pipe separated extra HTTP headers for avatar pages. (Eg X-Header-1: Value|X-Header-2: Value)" }
-extra_scripts.extra_index_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage Scripts", description = "Extra Javascript to run on homepage." }
-extra_scripts.extra_room_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room Scripts", description = "Extra Javascript to run on room pages." }
-extra_scripts.extra_scene_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene Scripts", description = "Extra Javascript to run on scene pages." }
-extra_scripts.extra_avatar_scripts = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP scripts", description = "Extra Javascript to run on avatar pages." }
+extra_html.extra_index_html = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage HTML", description = "Extra HTML to include at top of homepage." }
+extra_html.extra_room_html = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room HTML", description = "Extra HTML to include at top of room pages." }
+extra_html.extra_scene_html = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene HTML", description = "Extra HTML to include at top of scene pages." }
+extra_html.extra_avatar_html = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTML", description = "Extra HTML to include at top of avatar pages." }
+extra_scripts.extra_index_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage Script", description = "Extra Javascript to run on homepage." }
+extra_scripts.extra_room_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room Script", description = "Extra Javascript to run on room pages." }
+extra_scripts.extra_scene_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene Script", description = "Extra Javascript to run on scene pages." }
+extra_scripts.extra_avatar_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP script", description = "Extra Javascript to run on avatar pages." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
