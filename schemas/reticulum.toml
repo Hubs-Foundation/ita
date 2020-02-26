@@ -65,7 +65,7 @@ extra_html.extra_avatar_html = { "type" = "string", "default" = "", category = "
 extra_scripts.extra_index_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Homepage Script", description = "Extra Javascript to run on homepage." }
 extra_scripts.extra_room_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Room Script", description = "Extra Javascript to run on room pages." }
 extra_scripts.extra_scene_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Scene Script", description = "Extra Javascript to run on scene pages." }
-extra_scripts.extra_avatar_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar HTTP script", description = "Extra Javascript to run on avatar pages." }
+extra_scripts.extra_avatar_script = { "type" = "string", "default" = "", category = "advanced", name = "Extra Avatar Script", description = "Extra Javascript to run on avatar pages." }
 security.cors_origins = { "type" = "string", "default" = "*" }
 uploads.host = { "type" = "string", "default" = "" }
 uploads.storage_path = { "type" = "string", "default" = "/storage" }
