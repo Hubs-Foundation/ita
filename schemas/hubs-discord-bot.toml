@@ -1,11 +1,13 @@
-general.reticulum_host = { "type" = "string", "default" = "dev.reticulum.io" }
+general.token = { "type" = "string", "default" = "dev.reticulum.io", source = "reticulum.discord_client.bot_token" }
+general.reticulum_bot_access_key = { "type" = "string", "default" = "", source = "reticulum.ret.bot_access_key" }
+general.reticulum_host = { "type" = "string", "default" = "dev.reticulum.io", source = "reticulum.phx.url_host" }
+general.hubs_hosts = { "type" = "string", "default" = "localhost,hubs.local", source ="reticulum.phx.url_host" }
 general.statsd_host = { "type" = "string", "default" = "localhost:8125" }
 general.statsd_prefix = { "type" = "string", "default" = "discordbot." }
-general.hubs_hosts = { "type" = "string", "default" = "localhost,hubs.local" }
 general.hubs_hook = { "type" = "string", "default" = "Hubs" }
 general.shard_id = { "type" = "string", "default" = "0" }
 general.shard_count = { "type" = "string", "default" = "0" }
 general.verbose = { "type" = "string", "default" = "false" }
 general.locale = { "type" = "string", "default" = "en-US" }
 general.timezone = { "type" = "string", "default" = "America/Los_Angeles" }
-general.default_scene_url = { "type" = "string", "default" = "https://asset-bundles-prod.reticulum.io/rooms/atrium/Atrium.bundle.json" }
+general.default_scene_url = { "type" = "string", "default" = "" }
