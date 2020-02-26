@@ -19,7 +19,7 @@ nat.ice_tcp = { "type" = "string", "default" = "false", "category" = "advanced",
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet"}
 nat.nat_1_1_mapping = { "type" = "string", "default" = "vmnet", "unmanaged" = true }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
-plugins.sfu.max_room_size = { "type" = "number", "default" = 256}
+plugins.sfu.max_room_size = { "type" = "number", "default" = 256, "category" = "advanced", "name" = "Janus Max Room Size", "description" = "Maximum number of connections allowed to a voice room"}
 transports.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_pfunix.so"] }
 transports.pfunix.enabled = { "type" = "string", "default" = "no" }
 transports.pfunix.admin_enabled = { "type" = "string", "default" = "no" }
