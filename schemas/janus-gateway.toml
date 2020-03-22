@@ -14,8 +14,8 @@ media.force_bundle = { "type" = "string", "default" = "false"}
 media.force_rtcp_mux = { "type" = "string", "default" = "false"}
 media.no_media_timer = { "type" = "number", "default" = 1}
 nat.nice_debug = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Enable ICE Debugging"}
-nat.ice_lite = { "type" = "string", "default" = "false"}
-nat.ice_tcp = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Use TCP ICE", "description" = "Use TCP protocol for ICE negotiation" }
+nat.ice_lite = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Use ICE Lite", "description" = "Use ICE lite" }
+nat.ice_tcp = { "type" = "string", "default" = "false", "category" = "advanced", "name" = "Use TCP ICE", "description" = "Use TCP protocol for WebRTC media (requires ICE lite)" }
 nat.ice_ignore_list = { "type" = "string", "default" = "vmnet"}
 nat.nat_1_1_mapping = { "type" = "string", "default" = "vmnet", "unmanaged" = true }
 plugins.disabled = { "type" = "list", "of" = "string", "default" = ["libjanus_audiobridge.so", "libjanus_echotest.so", "libjanus_recordplay.so", "libjanus_streaming.so", "libjanus_textroom.so", "libjanus_videocall.so", "libjanus_videoroom.so"] }
