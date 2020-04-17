@@ -12,7 +12,7 @@ async function connectToDatabase(schemas, provider) {
     const itaConfigs = await provider.readStackConfigs("ita", schemas.ita);
 
     pgConfig = { // eslint-disable-line require-atomic-updates
-      user: process.env.PGUSER || itaConfigs.db.username,
+      user: process.env.PGUSER || itaConfigs.db.username || "postgres",
       password: process.env.PGPASSWORD || itaConfigs.db.password,
       host: process.env.PGHOST || itaConfigs.db.hostname,
       database: process.env.PGDATABASE || itaConfigs.db.database,

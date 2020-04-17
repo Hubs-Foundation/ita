@@ -29,7 +29,7 @@ db.username = { "type" = "string", "default" = "postgres" }
 db.password = { "type" = "string", "default" = "postgres" }
 db.port = { "type" = "number", "default" = 5432 }
 db.postgrest_password = { "type" = "string", "default" = "admin" }
-db.coturn_password = { "type" = "string", "default" = "admin" }
+db.coturn_password = { "type" = "string", "default" = "" }
 db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "polycosm_production" }
 db.template = { "type" = "string", "default" = "template0" }
@@ -40,6 +40,8 @@ hackney.max_connections = { "type" = "number", "default" = 250 }
 db.queue_target = { "type" = "number", "default" = 2500 }
 db.timeout = { "type" = "number", "default" = 60000 }
 db.ssl = { "type" = "boolean", "default" = false }
+turn.realm = { "type" = "string" }
+turn.public_tls_ports = { "type" = "string", "default" = "443,5349" }
 session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
 session_lock_db.hostname = { "type" = "string", "default" = "localhost" }
