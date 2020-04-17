@@ -29,6 +29,7 @@ db.username = { "type" = "string", "default" = "postgres" }
 db.password = { "type" = "string", "default" = "postgres" }
 db.port = { "type" = "number", "default" = 5432 }
 db.postgrest_password = { "type" = "string", "default" = "admin" }
+db.coturn_password = { "type" = "string", "default" = "admin" }
 db.hostname = { "type" = "string", "default" = "localhost" }
 db.database = { "type" = "string", "default" = "polycosm_production" }
 db.template = { "type" = "string", "default" = "template0" }
