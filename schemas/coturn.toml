@@ -1,0 +1,7 @@
+general.realm = { "type" = "string", "default" = "polycosm" }
+general.no_udp = { "type" = "string", "default" = "true" }
+general.no_tcp = { "type" = "string", "default" = "true" }
+general.no_dtls = { "type" = "string", "default" = "true" }
+general.min_port = { "type" = "number", "default" = 49152 }
+general.max_port = { "type" = "number", "default" = 51609 }
+general.tls_listening_port = { "type" = "number", "default" = 5349 }
