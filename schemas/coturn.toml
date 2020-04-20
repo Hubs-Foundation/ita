@@ -8,3 +8,5 @@ general.no_dynamic_realms = { "type" = "string", "default" = "true" }
 general.min_port = { "type" = "number", "default" = 49152 }
 general.max_port = { "type" = "number", "default" = 51609 }
 general.tls_listening_port = { "type" = "number", "default" = 5349 }
+general.psql_userdb = { "type" = "string", "default" = "" }
+general.use_auth_secret = { "type" = "string", "default" = "true" }

@@ -40,7 +40,7 @@ hackney.max_connections = { "type" = "number", "default" = 250 }
 db.queue_target = { "type" = "number", "default" = 2500 }
 db.timeout = { "type" = "number", "default" = 60000 }
 db.ssl = { "type" = "boolean", "default" = false }
-turn.realm = { "type" = "string" }
+turn.realm = { "type" = "string", "default" = "" }
 turn.public_tls_ports = { "type" = "string", "default" = "443,5349" }
 session_lock_db.username = { "type" = "string", "default" = "postgres" }
 session_lock_db.password = { "type" = "string", "default" = "postgres" }
