@@ -9,23 +9,31 @@ function getTimeString() {
 }
 
 async function _performOutputXform(value, xform, args, keymasterSecrets, getSecretValue, getS3Object) {
-  if (xform === "read-aws-secret" || xform === "inject-aws-secret" || xform === "read-keymaster-secret" || xform === "inject-keymaster-secret") {
+  if (xform === "read-aws-secret" || xform === "inject-aws-secret" || xform === "read-keymaster-secret" || xform === "inject-keymaster-secret" || xform == "inject-secrets" || xform == "read-secrets") {
+    let isInjection = xform.startsWith("inject-");
+
+    let isKeymasterAndProvider = xform === "inject-secrets" || xform == "read-secrets";
+    let isKeymasterOnly = xform.indexOf("keymaster") >= 0;
+    let isProviderOnly = xform.indexOf("aws") >= 0;
+
     let secretId = value;
 
-    if (xform.startsWith("inject-")) {
+    if (isInjection) {
       secretId = value.match(/{(.*)}/)[1];
     }
 
     let secretValue;
 
-    if (xform.indexOf("keymaster") >= 0) {
+    if (isKeymasterOnly || isKeymasterAndProvider) {
       secretValue = keymasterSecrets[secretId];
-    } else {
+    }
+
+    if (isProviderOnly || (isKeymasterAndProvider && !secretValue)) {
       const secret = await getSecretValue({ SecretId: secretId });
       secretValue = JSON.parse(secret.SecretString).password; // By convention we just use the key 'password' in stacks
     }
 
-    if (xform.startsWith("inject-")) {
+    if (isInjection) {
       return value.split(`{${secretId}}`).join(secretValue);
     } else {
       return secretValue;
