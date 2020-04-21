@@ -9,4 +9,5 @@ general.min_port = { "type" = "number", "default" = 49152 }
 general.max_port = { "type" = "number", "default" = 51609 }
 general.tls_listening_port = { "type" = "number", "default" = 5349 }
 general.psql_userdb = { "type" = "string", "default" = "postgresql://postgres:postgres@localhost/polycosm_production" }
+general.psql_schema = { "type" = "string", "default" = "coturn" }
 general.use_auth_secret = { "type" = "string", "default" = "true" }
