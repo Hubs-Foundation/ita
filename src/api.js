@@ -16,13 +16,15 @@ function forwardExceptions(routeFn) {
   return (req, res, next) => routeFn(req, res).catch(next);
 }
 
+const services = ["hubs", "spoke", "admin", "landing"];
+
 function create(schemas, provider, habitat, sshTotpQrData) {
   const router = express.Router();
 
   router.post('/deploy/:service', forwardExceptions(async (req, res) => {
     const service = req.params.service;
-    if (service !== "hubs" && service !== "spoke") {
-      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
+    if (services.indexOf(service) === -1) {
+      return res.status(400).json({ error: `Invalid service name. (Valid values: ${services.join(", ")})` });
     }
   
     const schema = schemas[service];
@@ -66,8 +68,8 @@ function create(schemas, provider, habitat, sshTotpQrData) {
 
   router.post('/undeploy/:service', forwardExceptions(async (req, res) => {
     const service = req.params.service;
-    if (service !== "hubs" && service !== "spoke") {
-      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
+    if (services.indexOf(service) === -1) {
+      return res.status(400).json({ error: `Invalid service name. (Valid values: ${services.join(", ")})` });
     }
   
     // Re-enable hab package to deploying.
@@ -126,11 +128,11 @@ function create(schemas, provider, habitat, sshTotpQrData) {
   }));
 
   // reads the latest merged configs for a service
-  // this is only used for hubs + spoke, so do not reveal anything else (eg ret secrets)
+  // this is only used for hubs, spoke, admin, and landing, so do not reveal anything else (eg ret secrets)
   router.get('/configs/:service', forwardExceptions(async (req, res) => {
     const service = req.params.service;
-    if (service !== "hubs" && service !== "spoke") {
-      return res.status(400).json({ error: "Invalid service name. (Valid values: hubs, spoke)" });
+    if (services.indexOf(service) === -1) {
+      return res.status(400).json({ error: `Invalid service name. (Valid values: ${services.join(", ")})` });
     }
 
     const schema = schemas[service];
