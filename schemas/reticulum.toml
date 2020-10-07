@@ -94,6 +94,8 @@ email.password = { "type" = "string", "default" = "", category = "email", name =
 email.from = { "type" = "string", "default" = "", category = "email", name = "SMTP From:", description = "Custom From: address for sending email." }
 email.server = { "type" = "string", "default" = "", category = "email", name = "SMTP Server", description = "Custom SMTP server for email." }
 email.port = { "type" = "number", "default" = 587, category = "email", name = "SMTP Port", description = "Custom SMTP port for email." }
+email.custom_email_subject = { "type" = "string", "default" = "", category = "email", name = "Custom sign-in email subject", description = "Custom email subject." }
+email.custom_email_message = { "type" = "string", "default" = "", category = "email", name = "Custom sign-in email message", description = "Custom email message. Use string '{{ token }}' where the magic link should be in the message. Otherwise, it will be added to the end of the message." }
 resolver.ytdl_host = { "type" = "string", "default" = "http://localhost:8080" }
 resolver.sketchfab_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Sketchfab API Key", description = "API key to use for Sketchfab model search." }
 resolver.google_poly_api_key = { "type" = "string", "default" = "", category = "api_keys", name = "Google Poly API Key", description = "API key to use for Google Poly model search." }
