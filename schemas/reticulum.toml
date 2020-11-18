@@ -109,3 +109,12 @@ twitter_client.consumer_key = { "type" = "string", "default" = "", category = "a
 discord_client.client_id = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Client ID", description = "Discord Client ID for Hubs Discord Bot" }
 discord_client.client_secret = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Client Secret", description = "Discord Client Secret for Hubs Discord Bot" }
 discord_client.bot_token = { "type" = "string", "default" = "", category = "api_keys", name = "Discord Bot Token", description = "Discord Bot Token for Hubs Discord Bot" }
+
+oidc.auth_endpoint = { type="string", category = "auth", name="OpenID Connect Authorization endpoint", description="Endpoint used to begin authorizing a user. Typically ends in /auth or /authorize" }
+oidc.token_endpoint = { type="string", category = "auth", name="OpenID Connect Token endpoint", description="Endpoint used to request a token from the authentication server. Typically ends in /token" }
+oidc.scopes = { type="string", category = "auth", name="OpenID Connect request scopes", description="Space separated list of scopes to request from the authentication server. Typically should include 'openid' and 'profile' at a minimum" }
+oidc.client_id = { type="string", category = "auth", name="OpenID Connect client id", description="The PUBLIC client id from the authentication server." }
+oidc.client_secret = { type = "string", default = "", category = "auth", name = "OIDC Client Secret", description = "Client Secret for Hubs OpenID Connect Login" }
+oidc.allowed_algos = { type = "string", default = "RS256", category = "auth", name = "OIDC Allowed Signing Algorithms", description = "A comma separated list of expected signing algorthms for the OpenID Connect ID tokens. Typically 'RS256'" }
+# This will typically not be a secret and will be the public part of a keypair, but may also contain the symetric secret depending on signing algorithm, so it should be treated as a secret
+oidc.verification_secret_jwk_set = { "type" = "string", "default" = "{\"keys\": []}", category = "auth", name = "Verification JWK set", description = "A JSON string containing the JWK set used to verify signatures. This can typcially be found at the jwks_uri of the discovery document." }
