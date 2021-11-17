@@ -5,9 +5,9 @@ pkg_version="0.0.1"
 pkg_description="A service for doing Hubs configuration management."
 
 pkg_deps=(
-  core/coreutils
+  core/coreutils/8.30/20190115012313
   core/node/12.9.0
-  core/aws-cli
+  core/aws-cli/1.16.118/20190305224525
 )
 
 pkg_build_deps=(
