@@ -18,21 +18,43 @@ You can use `bin/hab2schema` to generate a schema with types and defaults from a
 
 Install dependencies:
 
-``` sh
+```sh
 $ npm ci
 ```
 
 Run the server:
 
-``` sh
+```sh
 $ npm start
 ```
 
 Put a bunch of Janus config values on Parameter Store based on schema defaults:
-``` sh
+
+```sh
 $ curl -X POST localhost:3000/api/initialize/janus-gateway
 ```
 
 To use AWS, you will have to have credentials configured in a ~/.aws/credentials file or as environment variables (see https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EnvironmentCredentials.html).
 
 To flush to Habitat, you'll need the `hab` binary available and access to the supervisor CTL_SECRET.
+
+### Promote Package for Hubs Cloud Release or to unstable channel
+
+Warning: Please be careful when doing these commands!
+
+Promote to `polycosm-unstable` but follow the [deploying to HMC rules for the Discord bot](https://github.com/MozillaReality/hubs-discord-bot#deploying-to-hubsmozillacom) for the most part with a few differences, like:
+
+The `export HAB_BLDR_URL=""` should match the Biome Hubs Cloud URL.
+After you build the Habitat package in ita's root directory, you'll upload it to Biome using:
+
+```
+HAB_AUTH_TOKEN="<biome builder token>" hab pkg upload ./results/mozillareality-ita-0.0.1-<version>-x86_64-linux.hart
+```
+
+Then promote it to `polycosm-unstable` by using:
+
+```
+HAB_AUTH_TOKEN="<biome builder token>" hab pkg promote mozillareality/ita/0.0.1/<version> polycosm-unstable
+```
+
+Happy Ita promoting and deploying!
