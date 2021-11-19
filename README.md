@@ -45,7 +45,7 @@ Warning: Please be careful when doing these commands!
 Promote to `polycosm-unstable` but follow the [deploying to HMC rules for the Discord bot](https://github.com/MozillaReality/hubs-discord-bot#deploying-to-hubsmozillacom) for the most part with a few differences, like:
 
 The `export HAB_BLDR_URL=""` should match the Biome Hubs Cloud URL.
-After you build the Habitat package in ita's root directory, you'll upload it to Biome usinge:
+After you build the Habitat package in ita's root directory, you'll upload it to Biome using:
 
 ```
 HAB_AUTH_TOKEN="<biome builder token>" hab pkg upload ./results/mozillareality-ita-0.0.1-<version>-x86_64-linux.hart
@@ -54,7 +54,7 @@ HAB_AUTH_TOKEN="<biome builder token>" hab pkg upload ./results/mozillareality-i
 Then promote it to `polycosm-unstable` by using:
 
 ```
-HAB_AUTH_TOKEN="<habitat builder token>" hab pkg promote mozillareality/ita/0.0.1/<version> polycosm-unstable
+HAB_AUTH_TOKEN="<biome builder token>" hab pkg promote mozillareality/ita/0.0.1/<version> polycosm-unstable
 ```
 
 Happy Ita promoting and deploying!
