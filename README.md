@@ -2,8 +2,6 @@
 
 Config management service.
 
-Note that this is intentionally private for now as we don't want third-parties to easily clone our CF marketplace offering.
-
 ## Configuration schemas
 
 Configuration schemas are TOML files where each configurable maps to an object (a TOML table) containing the keys:
