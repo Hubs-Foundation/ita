@@ -11,3 +11,4 @@ general.verbose = { "type" = "string", "default" = "false" }
 general.locale = { "type" = "string", "default" = "en-US" }
 general.timezone = { "type" = "string", "default" = "America/Los_Angeles" }
 general.default_scene_url = { "type" = "string", "default" = "" }
+general.sentry_dsn = { "type" = "string", "default" = "" }
