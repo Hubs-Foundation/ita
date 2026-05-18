@@ -37,7 +37,7 @@ async function createApp() {
   const schemas = loadSchemas(process.env.SCHEMAS_DIR);
 
   const app = express();
-  const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg.trimEnd()) } });
+  const logger = morgan(process.env.REQ_LOG_FORMAT, { stream: { write: msg => debug(msg && msg.trimEnd && msg.trimEnd()) } });
   app.use(logger);
   app.use(bodyParser.json({ strict: true }));
   app.use('/', api.create(schemas, provider, habitat, sshTotpQrData));
