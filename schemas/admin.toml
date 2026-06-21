@@ -1,0 +1,9 @@
+general.reticulum_server = { "type" = "string" }
+general.cors_proxy_server = { "type" = "string", default = "" }
+general.base_assets_path = { "type" = "string", default = "/" }
+general.thumbnail_server = { "type" = "string" }
+general.non_cors_proxy_domains = { "type" = "string" }
+general.ga_tracking_id = { "type" = "string", "default" = "" }
+deploy.type = { "type" = "string", "default" = "none" }
+deploy.region = { "type" = "string", "default" = "" }
+deploy.target = { "type" = "string", "default" = "" }
